@@ -28,7 +28,8 @@ async function main(){
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
   const call=(method,params={})=>new Promise((resolve,reject)=>{const id=++seq;const timer=setTimeout(()=>reject(Error('CDP timeout '+method)),20000);pending.set(id,{resolve,reject,timer});ws.send(JSON.stringify({id,method,params}));});
   const evaluate=async expression=>{const r=await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
-  await call('Runtime.enable');await call('Page.enable');await call('Page.navigate',{url:`http://127.0.0.1:${port}/`});
+  const testUrl=process.env.PUBLIC_QA_URL || `http://127.0.0.1:${port}/`;
+  await call('Runtime.enable');await call('Page.enable');await call('Page.navigate',{url:testUrl});
   for(let i=0;i<60;i++){if(await evaluate('Boolean(window.RESEARCH_DATA && document.querySelectorAll(".video-card").length)'))break;await wait(100);}
   const check=async(name,expression,test)=>{const v=await evaluate(expression);assert(test(v),`${name}: ${JSON.stringify(v)}`);checks.push(name);};
   await check('initial cards and count','({cards:document.querySelectorAll(".video-card").length,total:DATA.videos.length})',v=>v.cards===36&&v.total>=150);
@@ -57,7 +58,7 @@ async function main(){
   const mobile=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'mobile.png'),Buffer.from(mobile.data,'base64'));
   await check('no secret tokens in bundle',`!JSON.stringify(DATA).match(/AIza|sk-ant-|ghp_/)`,Boolean);
   assert.equal(failures.length,0,'No browser runtime exceptions');
-  fs.writeFileSync(path.join(root,'reports','browser-check.json'),JSON.stringify({passed:checks.length,checks,exceptions:failures,engine:'dedicated headless Chrome / page-scoped CDP',artifacts},null,2));
+  fs.writeFileSync(path.join(root,'reports','browser-check.json'),JSON.stringify({url:testUrl,passed:checks.length,checks,exceptions:failures,engine:'dedicated headless Chrome / page-scoped CDP',artifacts},null,2));
   console.log(JSON.stringify({passed:checks.length,exceptions:failures.length,artifacts}));
  }finally{if(ws)ws.close();if(chrome)chrome.kill();await new Promise(r=>server.close(r));}
 }
