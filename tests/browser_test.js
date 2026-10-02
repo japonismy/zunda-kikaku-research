@@ -37,6 +37,8 @@ async function main(){
   await check('benchmark role filter',`(()=>{$('role').value='benchmark';filterVideos();return {n:state.filtered.length,valid:state.filtered.every(v=>v.role==='benchmark')}})()`,v=>v.n>30&&v.valid);
   await check('suzuki keyword results',`(()=>{$('reset').click();$('query').value=String.fromCodePoint(0x30b9,0x30ba,0x30ad);filterVideos();return state.filtered.map(v=>v.id)})()`,v=>v.includes('PzbaA1FiBkE'));
   await check('compare entity set',`(()=>{$('entitySet').value='komatsu';$('entitySet').dispatchEvent(new Event('change'));chooseView('compare');return document.querySelectorAll('.compare-card').length})()`,v=>v===4);
+  await check('benchmark included in topic comparison',`state.compare.includes('LAPxdRluun0')`,Boolean);
+  await check('topic comparison uses distinct channels',`new Set(state.compare.map(id=>byId.get(id).channel)).size`,v=>v===4);
   await check('comparison cap',`(()=>{const x=DATA.videos.find(v=>!state.compare.includes(v.id));toggleCompare(x.id);return state.compare.length})()`,v=>v===4);
   await check('save candidate',`(()=>{saveIdea(byId.get('PzbaA1FiBkE'));chooseView('ideas');return notes.ideas.length})()`,v=>v===1);
   await check('duplicate save guarded',`(()=>{saveIdea(byId.get('PzbaA1FiBkE'));return notes.ideas.length})()`,v=>v===1);
@@ -46,6 +48,7 @@ async function main(){
   await check('text escaping',`(()=>{const n=notes.ideas[0];n.promise='<img src=x onerror=alert(1)>';renderIdeas();return document.querySelectorAll('#ideaGrid img').length})()`,v=>v===0);
   await call('Page.reload');await wait(400);
   await check('reload preserves notes',`notes.ideas[0].shift`,v=>v==='QA note');
+  await check('growth sort uses observed differences',`(()=>{$('reset').click();$('sort').value='growth';filterVideos();return {available:state.filtered[0].deltaPerDay!=null,display:document.querySelectorAll('.growth').length}})()`,v=>v.available&&v.display>0);
   await evaluate(`$('reset').click();notes.ideas=[];persist();updateCounts();`);
   await call('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await wait(700);const desktop=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'desktop.png'),Buffer.from(desktop.data,'base64'));

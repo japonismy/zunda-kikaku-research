@@ -101,6 +101,9 @@ if current_path.exists():
     for v in current['videos']:add(v,current['observed'])
 # Exclude unrelated food references rather than silently widening the market.
 database={vid:v for vid,v in database.items() if v['channel'] in channels}
+if 'LAPxdRluun0' in database:
+    database['LAPxdRluun0']['entities']=list(set(database['LAPxdRluun0']['entities']+['komatsu']))
+    database['LAPxdRluun0']['topic']='industry'
 result_channels=[]
 for name,c in channels.items():
     items=[v for v in database.values() if v['channel']==name and not v['compilation']]
