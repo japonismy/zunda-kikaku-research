@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="中国・国際情勢の会話劇動画を、題材・サムネ・競合・ネタ元候補から探す企画リサーチ。">
+  <title>世界情勢・ずんだもん｜企画リサーチ</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-mark">Z</span><div><h1>世界情勢・ずんだもん <span>企画リサーチ</span></h1><p>中国・国際比較の題材を探し、会話劇へ。</p></div></div>
+    <div class="header-actions"><span id="dataDate" class="date-badge"></span><button id="exportNotes">メモを書き出す</button><label class="button" for="importNotes">メモを読み込む</label><input id="importNotes" type="file" accept="application/json" hidden></div>
+  </header>
+  <nav aria-label="画面切り替え">
+    <button class="nav-button active" data-view="videos">動画を探す <span id="videoCount"></span></button>
+    <button class="nav-button" data-view="channels">チャンネル比較</button>
+    <button class="nav-button" data-view="compare">同題材を比較 <span id="compareCount">0</span></button>
+    <button class="nav-button" data-view="ideas">企画候補 <span id="savedCount">0</span></button>
+  </nav>
+  <main>
+    <section id="videosView" class="view">
+      <div class="section-heading"><div><h2>次の企画の入口を見つける</h2><p>直接競合の見せ方と、会話劇に転用できるネタ元候補を分けて探す。</p></div></div>
+      <div class="search-panel">
+        <div class="search-row"><label class="search-label" for="query">キーワード<input id="query" type="search" placeholder="中国撤退、コマツ、橋、レアアース… タイトル・サムネ文字を検索"></label><button id="youtubeSearch" class="primary">YouTubeで探す ↗</button><button id="newsSearch">最新の報道 ↗</button></div>
+        <div class="filter-row">
+          <label>対象<select id="role"><option value="all">すべて</option><option value="direct">探検隊・直接競合</option><option value="benchmark">ずんだ探検隊</option><option value="source">ネタ元候補</option><option value="competitor">競合のみ</option></select></label>
+          <label>題材<select id="topic"><option value="">すべての題材</option></select></label>
+          <label>チャンネル<select id="channel"><option value="">すべてのチャンネル</option></select></label>
+          <label>公開時期<select id="period"><option value="all">全期間</option><option value="30">30日以内</option><option value="90">90日以内</option><option value="180">180日以内</option></select></label>
+          <label>再生数<select id="minViews"><option value="0">指定なし</option><option value="10000">1万回以上</option><option value="100000">10万回以上</option><option value="300000">30万回以上</option><option value="1000000">100万回以上</option></select></label>
+          <label>並び順<select id="sort"><option value="published">公開日が新しい順</option><option value="views">累計再生数順</option><option value="growth">観測間の増加／日</option><option value="relative">チャンネル内の突出度</option><option value="daily">公開後の平均再生／日</option></select></label>
+          <label class="check"><input type="checkbox" id="hideCompilation" checked>総集編を除く</label><button id="reset">条件を戻す</button>
+        </div>
+        <div class="quick-row"><span>題材から探す</span><div id="topicChips"></div></div>
+      </div>
+      <div class="result-heading"><p id="resultCount" role="status"></p><p id="metricHint">累計再生数は観測時点の保存値です。現在の再生数は動画ページで確認できます。</p></div>
+      <div id="videoGrid" class="video-grid"></div><div class="load-more"><button id="loadMore">さらに表示</button></div>
+      <details class="guide"><summary>芋づる式リサーチの進め方・数値の見方</summary><div class="guide-grid"><div><h3>検索 → 比較 → 企画候補</h3><ol><li>ChromeのシークレットウィンドウでYouTubeを開く。</li><li>探検隊のタイトルから国・企業・出来事の言葉を拾って検索。</li><li>同題材の先行動画と後発動画を見つける。</li><li>関連動画から、解説・反応集など新しい供給元を探す。</li><li>サムネの約束と内容の回収、新しい見せ方をメモする。</li></ol><p>検索ボタンはシークレットウィンドウを自動起動しません。履歴の影響を避けたい場合は検索URLをコピーしてシークレットで開いてください。</p></div><div><h3>数値を読み違えない</h3><p>平均再生／日は「累計再生数 ÷ 公開から観測までの日数」。直近の増加速度ではありません。</p><p>突出度は、収録した同チャンネルの通常動画の再生中央値との比率です。サンプルや公開日数の差があるため、品質・将来の再生数を保証しません。</p><p>同題材・先行公開だけで実際のネタ元とは確定できません。タイトルやサムネの主張も、事実確認前の企画材料として扱います。</p></div></div></details>
+    </section>
+    <section id="channelsView" class="view" hidden><div class="section-heading"><div><h2>競合とネタの供給元を分けて見る</h2><p>会話劇の比較先と、題材・情報の入口。収録範囲の中央値を表示します。</p></div></div><div id="channelGrid" class="channel-grid"></div></section>
+    <section id="compareView" class="view" hidden><div class="section-heading"><div><h2>同じ題材でも、何が違う？</h2><p>カードの「比較に追加」で最大4本。サムネ・公開順・訴求・内容を並べて確認。</p></div><button id="clearCompare">比較をクリア</button></div><div class="compare-tools"><label>題材セット<select id="entitySet"><option value="">選んで並べる</option></select></label></div><div id="compareGrid" class="compare-grid"></div></section>
+    <section id="ideasView" class="view" hidden><div class="section-heading"><div><h2>企画候補を残す</h2><p>見る理由と、元動画から何を変えるか。メモはこのブラウザに保存されます。</p></div><button id="addIdea" class="primary">URLから候補を追加</button></div><div class="notice">別PC・れもんさんとの共有には「メモを書き出す」からJSONを渡し、「メモを読み込む」で取り込めます。同時編集・クラウド同期はありません。</div><div id="ideaGrid" class="idea-grid"></div></section>
+  </main>
+  <footer><span>企画リサーチ / 中国・国際情勢・企業・インフラ</span><button id="exportCatalog">検索結果をCSVで保存</button><span>サムネはYouTubeの公開画像を表示</span></footer>
+  <dialog id="detailDialog"><button id="closeDetail" class="dialog-close" aria-label="閉じる">×</button><div id="detailContent"></div></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="data/catalog.js"></script><script src="app.js"></script>
+</body>
+</html>

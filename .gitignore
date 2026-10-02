@@ -1,0 +1,7 @@
+__pycache__/
+.env
+*.log
+reports/
+tests/artifacts/
+data_sources/
+*.token.json

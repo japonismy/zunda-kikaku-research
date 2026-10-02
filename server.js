@@ -1,0 +1,3 @@
+const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+const root=__dirname,port=Number(process.env.PORT||8741);
+http.createServer((req,res)=>{let decoded;try{decoded=decodeURIComponent(req.url.split('?')[0]);}catch(e){res.writeHead(400);return res.end();}const p=path.resolve(root,'.'+(decoded==='/'?'/index.html':decoded));if(!p.startsWith(root+path.sep)){res.writeHead(403);return res.end();}fs.readFile(p,(err,data)=>{if(err){res.writeHead(404);return res.end();}const ext=path.extname(p);res.setHeader('Content-Type',({'.html':'text/html','.css':'text/css','.js':'text/javascript','.json':'application/json'})[ext]+'; charset=utf-8');res.end(data);});}).listen(port,'127.0.0.1',()=>console.log(`Preview http://127.0.0.1:${port}`));
