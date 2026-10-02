@@ -34,6 +34,8 @@ async function main(){
   const check=async(name,expression,test)=>{const v=await evaluate(expression);assert(test(v),`${name}: ${JSON.stringify(v)}`);checks.push(name);};
   await check('initial cards and count','({cards:document.querySelectorAll(".video-card").length,total:DATA.videos.length})',v=>v.cards===36&&v.total>=150);
   await check('unique ids and channels','({unique:new Set(DATA.videos.map(v=>v.id)).size,total:DATA.videos.length,channels:DATA.channels.length})',v=>v.unique===v.total&&v.channels>=12);
+  await check('unrelated food channel excluded',`!DATA.videos.some(v=>v.id==='xTSXvsNeNqw')`,Boolean);
+  await check('dialogue reference retains competitor role',`DATA.videos.find(v=>v.id==='Bh7gU33XPB0').role`,v=>v==='competitor');
   await check('source role filter',`(()=>{$('role').value='source';filterVideos();return {n:state.filtered.length,valid:state.filtered.every(v=>v.role==='source')}})()`,v=>v.n>=6&&v.valid);
   await check('benchmark role filter',`(()=>{$('role').value='benchmark';filterVideos();return {n:state.filtered.length,valid:state.filtered.every(v=>v.role==='benchmark')}})()`,v=>v.n>30&&v.valid);
   await check('suzuki keyword results',`(()=>{$('reset').click();$('query').value=String.fromCodePoint(0x30b9,0x30ba,0x30ad);filterVideos();return state.filtered.map(v=>v.id)})()`,v=>v.includes('PzbaA1FiBkE'));
