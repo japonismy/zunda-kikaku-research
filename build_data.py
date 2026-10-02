@@ -97,8 +97,11 @@ current_path=HERE/'data_sources/current.json'
 if current_path.exists():
     current=load(current_path)
     for c in current['channels']:
-        channels[c['name']]={**channels.get(c['name'],{}),**c}
-    for v in current['videos']:add(v,current['observed'])
+        if c['name'] in channels:
+            role=channels[c['name']]['role']
+            channels[c['name']]={**channels[c['name']],**c,'role':role}
+    for v in current['videos']:
+        if v['channel'] in channels:add(v,current['observed'])
 # Exclude unrelated food references rather than silently widening the market.
 database={vid:v for vid,v in database.items() if v['channel'] in channels}
 if 'LAPxdRluun0' in database:
