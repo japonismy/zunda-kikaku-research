@@ -1,4 +1,4 @@
-﻿# ずんだもん 企画リサーチ
+# ずんだもん 企画リサーチ
 
 公開URL：https://japonismy.github.io/zunda-kikaku-research/
 
@@ -32,7 +32,7 @@ python -m unittest discover -s tests -p 'test_pipeline.py' -v
 node .\tests\portal_browser_test.js
 ```
 
-バックエンド8件・ブラウザ18件が成功。専用ヘッドレスChromeを使用し、既存ブラウザのフォーカスを操作しない。
+バックエンド9件・ブラウザ18件が成功。専用ヘッドレスChromeを使用し、既存ブラウザのフォーカスを操作しない。
 
 ## 以前の版
 

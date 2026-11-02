@@ -80,7 +80,7 @@ collect.pyは同日の取得原本が存在する場合は再利用する。API�
 6. Cloud Build 1回・20分上限、Cloud Run 1タスク・1CPU・512MiB・600秒・再試行0のジョブを反映。Schedulerは作成後停止し、承認範囲内だけ有効化。
 7. 日次取得は03:20 JST、サイト側再生成は03:50 JST。update-data.ymlには現在cronを書いていない。実稼働と費用の承認後に追加する。
 
-Google SDKの依存はbackend/requirements.txt。現在のローカルPythonには未導入のため、実接続時は隔離環境へ導入する。Cloud RunとGitHub Actionsは同ファイルで導入する。
+Google SDKの依存はbackend/requirements.txt。ローカルはdata_sources/.venvに導入済み。BigQuery/GCSクライアントのimportと、9テーブル・7,281行のSDK形式への変換を課金なしで確認した。Cloud RunとGitHub Actionsは同ファイルで導入する。
 公開用ページにDB資格情報は置かない。原本・履歴ミラー・承認・実行レポートは公開対象外。
 
 ## 現在の不足と費用承認の対象

@@ -1,6 +1,6 @@
 """Local warehouse utilities. Cloud writes are deliberately separate."""
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, date, timezone, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,7 +17,10 @@ def read(path, default=None):
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix+'.tmp')
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
+    def json_value(item):
+        if isinstance(item,(date,datetime)):return item.isoformat()
+        raise TypeError('Unsupported warehouse value: '+type(item).__name__)
+    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2, default=json_value), encoding='utf-8')
     temporary.replace(path)
 
 def table(name):

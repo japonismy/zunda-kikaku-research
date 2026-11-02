@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'backend'))
 import common
@@ -50,5 +51,8 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(self.cfg['channels']),7)
         self.assertTrue(any(c['channel_id']=='UCXzt6u4VooLQcyc3-yIFIcw' for c in self.cfg['channels']))
         self.assertFalse(any('応援隊' in c['channel_name'] for c in self.cfg['channels']))
+    def test_bigquery_timestamps_roundtrip_in_local_mirror(self):
+        common.save_table('youtube_metadata_update_runs',[{'run_id':'fixture','started_at':datetime(2026,11,2,tzinfo=timezone.utc)}])
+        self.assertEqual(common.table('youtube_metadata_update_runs')[0]['started_at'],'2026-11-02T00:00:00+00:00')
 
 if __name__=='__main__':unittest.main()
