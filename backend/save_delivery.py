@@ -1,4 +1,4 @@
-﻿"""Save the completed cloud pipeline and its evidence to G: and the Vault."""
+"""Save the completed cloud pipeline and its evidence to G: and the Vault."""
 import csv
 import json
 import shutil
@@ -44,7 +44,7 @@ BigQueryから無料のtabledata.listで読み出してPythonで結合し、chan
 Project：rugged-destiny-408613
 Dataset：zunda_all / asia-northeast1
 テーブル：channels, videos, channel_snapshots, video_snapshots, videos_archive, thumbnail_assets, thumbnail_ocr, script_assets, youtube_metadata_update_runs
-GCS：gs://senior-share-staging-570862915709/zunda_research/thumbnails/
+GCS：gs://zunda-research-private-570862915709/zunda_research/thumbnails/
 
 元の馴れ初めDBへずんだもん動画を混ぜず、専用datasetとprefixで分離。元の馴れ初めデータと日次ジョブは変更していない。
 

@@ -27,6 +27,14 @@ def main():
         if now()[:10]>policy['valid_until']:raise RuntimeError('Approved GCS transfer period expired.')
         from google.cloud import storage
         client=storage.Client(project=cfg['project'],credentials=credentials());bucket=client.bucket(cfg['bucket'])
+        # Verify a changed archive endpoint once under the actual CI identity.
+        # Metadata alone confirms access and the stored checksum; no image data
+        # transfer is needed for this connection check.
+        verified=read(ROOT/'data/archive_access_verified.json',{})
+        if verified.get('bucket')!=cfg['bucket'] and inventory:
+            vid=sorted(inventory)[0];blob=bucket.blob(cfg['gcs_prefix']+'/thumbnails/'+vid+'.jpg');blob.reload(retry=None,timeout=30)
+            if blob.size!=inventory[vid]['bytes'] or (blob.metadata or {}).get('sha256')!=inventory[vid]['sha256']:raise RuntimeError('Archive access/checksum check failed.')
+            write(ROOT/'data/archive_access_verified.json',{'bucket':cfg['bucket'],'video_id':vid,'sha256_matches':True,'checked_at':now(),'method':'one metadata GET under CI reader; no image transfer'})
         ledger=read(ROOT/'data/thumbnail_delivery_ledger.json',{'reserved_download_bytes':0,'attempts':[]})
         failed={r['video_id'] for r in ledger['attempts'] if r.get('status')=='failed'}
         missing=[r for r in table('thumbnail_assets') if r['video_id'] in registry and r['video_id'] not in inventory and r['video_id'] not in failed and r.get('gcs_uri') and not r.get('error')]

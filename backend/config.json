@@ -2,7 +2,7 @@
   "project": "rugged-destiny-408613",
   "dataset": "zunda_all",
   "location": "asia-northeast1",
-  "bucket": "senior-share-staging-570862915709",
+  "bucket": "zunda-research-private-570862915709",
   "gcs_prefix": "zunda_research",
   "site_url": "https://japonismy.github.io/zunda-kikaku-research/",
   "min_duration_seconds": 120,

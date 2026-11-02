@@ -31,7 +31,7 @@ flowchart LR
 - Cloud Run Job：zunda-daily-metadata
 - Scheduler：zunda-daily-metadata-schedule / 03:20 JST
 - GitHub Actions：update-data.yml / 03:50 JST
-- GCS：gs://senior-share-staging-570862915709/zunda_research/thumbnails/
+- GCS：gs://zunda-research-private-570862915709/zunda_research/thumbnails/
 - 公開画像：assets/thumbnails/{video_id}.jpg（GitHub Pages）
 - Runner：zunda-research-runner。DB書き込みと専用GCS prefixだけに権限を限定。
 - Reader：zunda-site-reader。DB・専用画像の読み取り。GitHub mainブランチに限定した鍵なし認証。

@@ -10,7 +10,7 @@
 
 1. 毎日03:20 JST、Cloud SchedulerがCloud Run Job `zunda-daily-metadata`を起動。
 2. 全uploadsをページ末尾まで取得し、BigQuery `rugged-destiny-408613.zunda_all` の現在値と日次履歴を更新。
-3. 新しいサムネをGCS `gs://senior-share-staging-570862915709/zunda_research/thumbnails/` へ保全。
+3. 新しいサムネをGCS `gs://zunda-research-private-570862915709/zunda_research/thumbnails/` へ保全。
 4. 毎日03:50 JST、GitHub ActionsがBigQueryを無料のtabledata.listで読み、Pythonで動画・チャンネル・履歴・OCR・画像・字幕資産を結合。
 5. 新しい保全画像だけを上限付きで取得し、静的JSと画像をGitHub Pagesへ公開。公開ページの閲覧時にはBigQueryもGCSも直接呼ばない。
 
