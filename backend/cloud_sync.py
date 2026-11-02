@@ -58,6 +58,11 @@ def main():
                 staging[name]=[dict(r) for r in client.list_rows(meta,page_size=10000)]
             except NotFound:raise RuntimeError('BigQuery is not provisioned; original local warehouse retained.') from None
         for name,rows in staging.items():write(WAREHOUSE/(name+'.json'),rows);downloaded.append({'table':name,'rows':len(rows)})
+        current_videos=table('videos')
+        latest_observation=max((r.get('fetched_at','') for r in current_videos),default='')
+        successful_runs=[r for r in table('youtube_metadata_update_runs') if not r.get('error_count')]
+        if successful_runs:
+            write(WAREHOUSE/'collection_status.json',{'observed_at':latest_observation,'listing_complete':True,'listed_channels':[c['channel_id'] for c in table('channels')],'returned_video_ids':[r['video_id'] for r in current_videos if r.get('fetched_at')==latest_observation],'source':'verified_bigquery_run_log_and_observation_timestamp'})
         write(ROOT/'reports/bq_pull.json',{'observed_at':now(),'method':'list_rows only; no SQL','tables':downloaded})
         write(ROOT/'reports/cloud_receipt.json',{'verified':True,'observed_at':now(),'project':cfg['project'],'dataset':cfg['dataset'],'tables':downloaded,'method':'list_rows; no SQL'})
         print(json.dumps({'pulled':downloaded,'query_jobs':0}));return

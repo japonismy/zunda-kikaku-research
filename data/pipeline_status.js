@@ -1,1 +1,1 @@
-window.PIPELINE_STATUS = {"source":"local_warehouse","cloud_connected":false,"public_label":"取得・表示は整備済み。BigQuery保存・クラウド日次実行は未接続（費用承認待ち）。"};
+window.PIPELINE_STATUS = {"source":"bigquery","cloud_connected":true,"public_label":"BigQuery保存値から生成。日次実行の有効化状態は運用記録を参照。"};

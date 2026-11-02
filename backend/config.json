@@ -64,6 +64,12 @@
     "Japan応援隊",
     "じゃぱん応援隊"
   ],
-  "cloud_activation": "pending_cost_approval",
-  "ocr_activation": "pending_separate_cost_approval"
+  "cloud_activation": "approved_deploying",
+  "ocr_activation": "pending_separate_cost_approval",
+  "approved_operating_period": {
+    "from": "2026-11-02",
+    "until": "2026-12-01",
+    "total_cap_jpy": 300,
+    "max_executions": 30
+  }
 }

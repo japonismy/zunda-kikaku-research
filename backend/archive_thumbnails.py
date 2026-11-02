@@ -36,7 +36,7 @@ def main():
     upsert('thumbnail_assets',rows,['video_id'])
     checksums=[{'video_id':r['video_id'],'bytes':r['bytes'],'sha256':hashlib.sha256((folder/(r['video_id']+'.jpg')).read_bytes()).hexdigest()} for r in rows if r['bytes'] and (folder/(r['video_id']+'.jpg')).exists()]
     write(ROOT/'reports/thumbnail_manifest.json',checksums)
-    summary={'observed_at':now(),'saved':len(checksums),'failed':len(rows)-len(checksums),'bytes':total,'paid_calls':0,'location':str(folder)}
+    summary={'observed_at':now(),'saved':sum(not r.get('error') and r.get('bytes',0)>0 for r in rows),'already_in_gcs':sum(bool(r.get('gcs_uri')) for r in rows),'local_files':len(checksums),'failed':sum(bool(r.get('error')) for r in rows),'bytes':total,'paid_calls':0,'location':str(folder)}
     write(ROOT/'reports/thumbnail_archive.json',summary);print(json.dumps(summary,ensure_ascii=True))
 
 if __name__=='__main__':main()

@@ -1,10 +1,12 @@
 name: Rebuild zunda from BigQuery
 on:
   workflow_dispatch:
-# A cron is intentionally absent until the 30-day operating cost is approved.
+  schedule:
+    - cron: '50 18 * * *'
 permissions:
   contents: write
   actions: write
+  id-token: write
 concurrency:
   group: zunda-data-refresh
   cancel-in-progress: false
@@ -12,31 +14,49 @@ jobs:
   rebuild:
     runs-on: ubuntu-latest
     steps:
+      - name: Check approved operating period
+        id: period
+        run: |
+          if [ "$(TZ=Asia/Tokyo date +%F)" \> "2026-12-01" ]; then echo "active=false" >> "$GITHUB_OUTPUT"; else echo "active=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Stop this recurring workflow after approval expires
+        if: steps.period.outputs.active == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow disable update-data.yml --repo "$GITHUB_REPOSITORY"
       - uses: actions/checkout@v4
+        if: steps.period.outputs.active == 'true'
       - uses: actions/setup-python@v5
+        if: steps.period.outputs.active == 'true'
         with:
           python-version: '3.12'
       - run: pip install -r backend/requirements.txt
-      - name: Configure read credentials
-        env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        run: |
-          test -n "$GCP_SA_KEY"
-          printf '%s' "$GCP_SA_KEY" > "$RUNNER_TEMP/gcp-sa.json"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/gcp-sa.json" >> "$GITHUB_ENV"
+        if: steps.period.outputs.active == 'true'
+      - uses: google-github-actions/auth@v3
+        if: steps.period.outputs.active == 'true'
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_READER_SERVICE_ACCOUNT }}
       - run: python backend/cloud_sync.py --pull
+        if: steps.period.outputs.active == 'true'
+      - run: python backend/publish_thumbnails.py
+        if: steps.period.outputs.active == 'true'
       - run: python backend/build_portal.py
+        if: steps.period.outputs.active == 'true'
       - run: python -m unittest discover -s tests -p 'test_pipeline.py' -v
+        if: steps.period.outputs.active == 'true'
       - name: Commit generated public data
+        if: steps.period.outputs.active == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/channels.js data/videos.js data/transcripts_light.js data/pipeline_status.js
+          git add data/channels.js data/videos.js data/transcripts_light.js data/pipeline_status.js data/thumbnail_manifest.json assets/thumbnails
+          if [ -f data/thumbnail_delivery_ledger.json ]; then git add data/thumbnail_delivery_ledger.json; fi
           if ! git diff --cached --quiet; then
             git commit -m "Rebuild zunda portal from BigQuery"
             git push
           fi
       - name: Publish this exact generated source
+        if: steps.period.outputs.active == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run pages.yml --ref main

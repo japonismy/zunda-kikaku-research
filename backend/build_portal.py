@@ -23,6 +23,8 @@ def build():
     for s in table('video_snapshots'):snapshots.setdefault(s['video_id'],[]).append(s)
     ocr={r['video_id']:r for r in table('thumbnail_ocr')}; assets={r['video_id']:r for r in table('thumbnail_assets')}; scripts={r['video_id']:r for r in table('script_assets')}
     local_assets=read(ROOT/'data_sources/public_asset_links.json',{})
+    for vid in read(ROOT/'data/thumbnail_manifest.json',{}):
+        local_assets.setdefault(vid,{})['thumbnail_url']='assets/thumbnails/'+vid+'.jpg'
     prior=json.loads((ROOT/'data/catalog.js').read_text(encoding='utf-8').removeprefix('window.RESEARCH_DATA = ').strip().rstrip(';'))
     # Reuse OCR that already exists; no new image analysis.
     cached={v['id']:v for v in prior['videos']}

@@ -1,0 +1,10 @@
+{
+  "task_id": "zunda-equivalent-pipeline-20261102",
+  "approval_scope": "Approved initial setup and 30-day operation within JPY 300; paid OCR and unlimited GCS image delivery excluded.",
+  "valid_until": "2026-12-01",
+  "max_objects_per_run": 20,
+  "max_object_bytes": 1048576,
+  "max_download_bytes_total": 629145600,
+  "initial_copy_method": "reuse identical locally archived files; no GCS download",
+  "public_delivery": "GitHub Pages"
+}

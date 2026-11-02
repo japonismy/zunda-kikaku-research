@@ -36,5 +36,14 @@ def main():
     upsert('youtube_metadata_update_runs',[log],['run_id'])
     import cloud_sync
     sys.argv=['cloud_sync.py','--push'];cloud_sync.main()
+    if today==approval['valid_until']:
+        import google.auth
+        from google.auth.transport.requests import AuthorizedSession
+        credential,_=google.auth.default(scopes=['https://www.googleapis.com/auth/cloud-platform'])
+        session=AuthorizedSession(credential)
+        url=f'https://cloudscheduler.googleapis.com/v1/projects/{cfg["project"]}/locations/{cfg["location"]}/jobs/zunda-daily-metadata-schedule'
+        response=session.delete(url,timeout=30)
+        if response.status_code not in (200,204,404):raise RuntimeError('Approved-period scheduler cleanup failed.')
+        print('Approved final daily run completed; its scheduler has been removed.')
 
 if __name__=='__main__':main()

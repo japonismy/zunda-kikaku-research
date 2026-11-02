@@ -7,6 +7,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -23,6 +24,7 @@ jobs:
           mkdir -p _site/data
           cp index.html .nojekyll _site/
           cp data/channels.js data/videos.js data/transcripts_light.js data/pipeline_status.js _site/data/
+          if [ -d assets/thumbnails ]; then mkdir -p _site/assets; cp -R assets/thumbnails _site/assets/; fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -30,3 +32,10 @@ jobs:
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Remove the temporary deployment artifact
+        if: steps.deployment.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          artifact_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.artifacts[] | select(.name == "github-pages") | .id')
+          if [ -n "$artifact_id" ]; then gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"; fi
