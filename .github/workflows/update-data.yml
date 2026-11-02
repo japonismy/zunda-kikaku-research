@@ -1,0 +1,42 @@
+name: Rebuild zunda from BigQuery
+on:
+  workflow_dispatch:
+# A cron is intentionally absent until the 30-day operating cost is approved.
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: zunda-data-refresh
+  cancel-in-progress: false
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r backend/requirements.txt
+      - name: Configure read credentials
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          test -n "$GCP_SA_KEY"
+          printf '%s' "$GCP_SA_KEY" > "$RUNNER_TEMP/gcp-sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/gcp-sa.json" >> "$GITHUB_ENV"
+      - run: python backend/cloud_sync.py --pull
+      - run: python backend/build_portal.py
+      - run: python -m unittest discover -s tests -p 'test_pipeline.py' -v
+      - name: Commit generated public data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/channels.js data/videos.js data/transcripts_light.js data/pipeline_status.js
+          if ! git diff --cached --quiet; then
+            git commit -m "Rebuild zunda portal from BigQuery"
+            git push
+          fi
+      - name: Publish this exact generated source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

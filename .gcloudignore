@@ -1,0 +1,8 @@
+.git/
+data_sources/
+reports/
+tests/
+assets/
+*.token.json
+.env
+**/__pycache__/

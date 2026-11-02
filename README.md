@@ -1,69 +1,43 @@
-# 世界情勢・ずんだもん 企画リサーチ
+﻿# ずんだもん 企画リサーチ
 
-中国・国際情勢、日本企業・技術・インフラを扱う会話劇チャンネルの企画リサーチサイト。
+公開URL：https://japonismy.github.io/zunda-kikaku-research/
 
-公開URL: https://japonismy.github.io/zunda-kikaku-research/
+馴れ初め版の「YouTube取得→BigQueryで現在値と日次履歴を保存→資産を動画IDで結合→静的データ生成→GitHub Pages表示」を移植する。
 
-## 使い方
+2026-11-02時点：直接競合7chから公開メタデータ2,280本を取得、120秒以上の2,271本を公開データへ生成。既存OCR69本、過去観測367件を再利用。サムネ2,268枚・約521MiBをローカル保全。追加課金0円。
 
-1. 「動画を探す」は直接競合7チャンネルを初期表示。上部ボタンで1チャンネルに絞り、キーワード・公開日・再生数で探す。参考資料は対象欄で明示的に切り替える。
-2. 「比較に追加」で同題材を最大4本並べ、サムネの約束と内容・見せ方を2欄に記録する。
-3. 「企画候補」に保存し、今回見る理由・ずらし方を残す。任意のYouTube URLからも追加できる。
-4. 「メモを書き出す」のJSONを受け渡して別PCで取り込む。既存の候補を残して統合する。
+**BigQueryへの実データ保存、GCS転送、Cloud Run / Schedulerの新規作成と日次稼働は費用未承認のため未実行。表示成功をクラウド接続成功と扱わない。** 公開画面にも状態を表示する。
 
-メモはブラウザのlocalStorageに保存する。クラウドへの書き込み・自動同期・同時編集はない。
-未収録URLのタイトル・再生数はブラウザでは自動取得しない。候補追加後に手入力できる。
+## 構成・手順
 
-## データ・数値の意味
+[backend/README.md](backend/README.md) に本番の調査結果、移植内容、9テーブル、起動手順、費用承認後の反映順序、現在の不足を記載。
 
-- YouTubeの公開メタデータと、既存の公開サムネ文字分析を使用。
-- 2026-11-02に直接競合7チャンネルの既存収録動画と直近最大50アップロードを更新。180秒超・非ライブ動画375本（総集編除外で361本）。参考資料を含めると563本。
-- 指定ベンチマークは、ずんだ実話・すんだ観察所・ずんだ探検隊・世界まる見えずんだもん。追加の直接競合は、天子のワダイ・ニッポンすんだ村・えだまめじゃぽん。Japan応援隊／じゃぱん応援隊は収録しない。
-- `@tenko-topic` は天子のワダイ。世界まる見えずんだもんとは別チャンネル。提示された「ずんだ観測所」等の表記は既存記録・チャンネルID・公開メタデータで「すんだ観察所」に照合した。
-- 過去に保存した対象動画も統合。全動画・市場全体・月間再生数の網羅データではない。
-- 収録した通常動画の再生中央値に対する倍率を「突出度」とする。公開日数は揃っていない。
-- 「公開後平均再生／日」は累計÷観測までの日数。「観測間の増加／日」は複数の保存値の差÷観測間の日数。
-- サムネ文字は過去の画像分析・OCR。誤認識や現在画像との違いがあり得る。
-- ネタ元候補は情報の入口であり、探検隊が実際に参照した動画とは確定していない。
-- タイトルやサムネにある主張は事実資料ではない。企画採用前に一次資料と照合する。
-- 台本全文、個人評価、会議の内部メモ、認証情報はサイトデータに含めない。
+- backend/config.json：7チャンネルの固定ID台帳。Japan応援隊は除外。
+- backend/collect.py：全uploadsの取得、現在値、冪等な日次履歴、削除時の過去値保持。
+- backend/cloud_sync.py：BigQueryへの登録計画、承認後の書き込み、無料プレビュー読み出し。
+- backend/build_portal.py：動画・チャンネル・OCR・サムネ・字幕資産・観測履歴を結合して静的JSを生成。
+- backend/archive_thumbnails.py / upload_assets.py：ローカル保全、承認後のGCS保存。
+- backend/run_daily.py / Dockerfile / deploy.ps1：日次ジョブ。コード準備済み、未デプロイ。
+- .github/workflows/update-data.yml：BigQueryからページ用データを再生成。現在は手動起動のみ。
+- .github/workflows/pages.yml：公開ファイルだけをGitHub Pagesへ反映。
 
-## ローカル実行
+画面は馴れ初め版のindex.htmlを移植。サムネ・タイトル・タグの検索、チャンネル・尺・公開日・再生数・OCR・保全状態の絞り込み、高評価・コメント・再生数・公開日・中央値比等の並べ替え、詳細・CSVに対応。概要欄ダイジェストは保存字幕と区別する。
+
+## ローカル検証
 
 ```powershell
-node .\server.js
+python .\backend\collect.py --cached
+python .\backend\build_portal.py
+python -m unittest discover -s tests -p 'test_pipeline.py' -v
+node .\tests\portal_browser_test.js
 ```
 
-http://127.0.0.1:8741/
+バックエンド8件・ブラウザ18件が成功。専用ヘッドレスChromeを使用し、既存ブラウザのフォーカスを操作しない。
 
-`index.html`を直接開いても動くが、メモ保存はブラウザ・公開URLごとに別になる。
+## 以前の版
 
-## 公開データの更新
+app.js / styles.css / data/catalog.js / refresh_direct.py / build_data.py / refresh_youtube.py / save_research_handoff.py / tests/browser_test.js は以前の表示・比較中心の版の記録。現在の公開画面からは読み込まない。現在の更新にはbackend配下を使う。catalog.jsは既存OCR・過去観測の移行元として保持する。
 
-今回の対象7チャンネルは `python .\refresh_direct.py` で更新する。無料のYouTube Data API list枠を使い、最大30リクエスト、再試行なし。`--cached` では同日保存値を再利用してネットワーク呼び出しを行わない。2026-11-02の取得は16リクエスト、有料処理0件。公開サイトに取得スケジュールは設定していない。
+原本とローカルwarehouseはdata_sources、検証結果はreports。どちらもGitと公開ページには含めない。認証情報・承認ファイル・APIキーも公開しない。
 
-以下の旧ビルダーは2026-10-02以前の資料統合用。現在の7チャンネル選定を維持する更新には `refresh_direct.py` を使う。
-
-`refresh_youtube.py`は環境変数 `YOUTUBE_API_KEY` を使う読み取り専用のYouTube Data API更新。
-最大40回のlistリクエスト、再試行なし。search.list・生成AI・有料OCR・BigQuery処理は実行しない。
-キーはJavaScriptやリポジトリへ保存しない。GitHub Actionsの定期取得は設定していない。
-
-1. `refresh_youtube.py`で公開メタデータを `data_sources/current.json` に取得。
-2. `build_data.py`で保存済み資料と統合し `data/catalog.js` を生成。
-3. `node tests/browser_test.js`で動作確認。
-4. 公開用のファイルをcommit/pushするとGitHub Pagesへ反映。
-
-`build_data.py`の入力は環境変数 `ZUNDA_RESEARCH_ROOT`、`ZUNDA_THUMB_ROOT`、`ZUNDA_PACK_ROOT`で指定する。
-APIキーのある元環境だけで更新する。ブラウザからAPIキーを入力・公開しない。
-
-## 検証
-
-Chromeの専用ヘッドレスプロファイルとページ単位CDPで確認する。
-`node tests/browser_test.js`で検索、区分、比較上限、メモ保存、再読込、URL検証、モバイル幅、実行時エラーを検査。
-結果は `reports/browser-check.json`、画面画像は `tests/artifacts`。どちらも公開対象外。
-
-## 保存先
-
-実装: `E:\Data\ObsidianVault\04_Tools\zunda-kikaku-research`
-
-認証情報を含む環境変数・APIキーは公開しない。API取得原本と内部レポートも `.gitignore` で除外する。
+実装保存先：E:\Data\ObsidianVault\04_Tools\zunda-kikaku-research

@@ -21,8 +21,8 @@ jobs:
       - name: Assemble public files
         run: |
           mkdir -p _site/data
-          cp index.html app.js styles.css .nojekyll _site/
-          cp data/catalog.js _site/data/
+          cp index.html .nojekyll _site/
+          cp data/channels.js data/videos.js data/transcripts_light.js data/pipeline_status.js _site/data/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

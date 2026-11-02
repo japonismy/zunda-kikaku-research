@@ -5,3 +5,6 @@ reports/
 tests/artifacts/
 data_sources/
 *.token.json
+
+*.cost-approval.json
+*.credentials.json

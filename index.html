@@ -1,50 +1,1237 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="中国・国際情勢の会話劇動画を、題材・サムネ・競合・ネタ元候補から探す企画リサーチ。">
-  <title>世界情勢・ずんだもん｜企画リサーチ</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ずんだもん企画リサーチ</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1110;
+      --panel: #1d211f;
+      --panel2: #272c29;
+      --panel3: #171a18;
+      --text: #f3f5f4;
+      --muted: #a8b0ab;
+      --line: #3b433e;
+      --accent: #3fb978;
+      --accent-strong: #2f9f65;
+      --accent-soft: rgba(63, 185, 120, .16);
+      --blue: #4da3ff;
+      --warn: #e0a53a;
+      --danger: #e36872;
+      --purple: #9b8cff;
+    }
+    * { box-sizing: border-box; }
+    html { overflow-x: hidden; }
+    body {
+      margin: 0;
+      min-width: 0;
+      font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(15, 17, 16, .97);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 18px 10px;
+      backdrop-filter: blur(8px);
+    }
+    header:has(.advanced[open]) { position: relative; }
+    .heading-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: .01em;
+    }
+    .scope-summary {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .searchbar {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+      max-width: 980px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+    input, select, button {
+      min-width: 0;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel2);
+      color: var(--text);
+      padding: 7px 10px;
+      font: inherit;
+    }
+    input, select { width: 100%; }
+    input[type="search"] {
+      border-radius: 20px;
+      padding-left: 15px;
+      background: #202422;
+    }
+    button {
+      background: var(--accent-strong);
+      border-color: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      padding-inline: 16px;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    summary:focus-visible,
+    .card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .scope-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text); }
+    .scope-checkbox input { width: 18px; height: 18px; min-height: 18px; accent-color: var(--accent); }
+    .basic-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .basic-filters .filter-wide { grid-column: auto; }
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      margin-top: 9px;
+    }
+    .preset-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-right: 2px;
+    }
+    .preset {
+      min-height: 30px;
+      padding: 4px 11px;
+      border-radius: 16px;
+      background: #202522;
+      border-color: var(--line);
+      color: var(--text);
+      font-size: 12px;
+    }
+    .preset.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .preset.reset {
+      margin-left: 3px;
+      color: var(--muted);
+    }
+    .advanced {
+      margin-top: 9px;
+      border-top: 1px solid transparent;
+    }
+    .advanced[open] {
+      border-top-color: var(--line);
+      padding-top: 9px;
+    }
+    .advanced summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 30px;
+      padding: 4px 11px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #202522;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      user-select: none;
+      list-style: none;
+    }
+    .advanced summary::-webkit-details-marker { display: none; }
+    .advanced summary::before { content: "＋"; color: var(--accent); font-weight: 900; }
+    .advanced[open] summary::before { content: "−"; }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 9px;
+      margin-top: 10px;
+    }
+    .views-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      min-width: 0;
+    }
+    .search-fields {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+    }
+    .search-fields > span { color: var(--muted); font-size: 12px; }
+    .search-fields label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #202522;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .search-fields input { width: auto; min-height: auto; }
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 27px;
+      padding: 3px 9px;
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: #fff;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .filter-chip::after { content: "×"; color: #cbeedb; font-weight: 900; }
+    .status {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    main { padding: 16px 18px 36px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+      gap: 12px;
+    }
+    .card {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .15s ease, transform .15s ease, background .15s ease;
+    }
+    .card:hover {
+      border-color: #68726c;
+      background: #222724;
+      transform: translateY(-1px);
+    }
+    .card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #111;
+    }
+    .thumbnail-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #111;
+    }
+    .thumbnail-wrap img {
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .duration-badge {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, .82);
+      color: #fff;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      line-height: 1.25;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+    }
+    .meta {
+      display: grid;
+      gap: 7px;
+      padding: 9px 10px 10px;
+    }
+    .primary-meta {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: baseline;
+    }
+    .channel-name {
+      overflow: hidden;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .view-count {
+      color: var(--blue);
+      font-size: 15px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .title {
+      min-height: 61px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .metric {
+      min-width: 0;
+      padding: 5px 6px;
+      border: 1px solid #303632;
+      border-radius: 6px;
+      background: var(--panel3);
+    }
+    .metric-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.1;
+    }
+    .metric-value {
+      display: block;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .badges { display: flex; flex-wrap: wrap; gap: 4px; }
+    .badge {
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .badge.hit, .badge.category { color: #fff; border-color: var(--accent); background: var(--accent-soft); }
+    .badge.warn { color: #fff; border-color: var(--warn); background: rgba(224, 165, 58, .17); }
+    .badge.danger { color: #fff; border-color: var(--danger); background: rgba(227, 104, 114, .18); }
+    .badge.archive { color: #fff; border-color: var(--purple); background: rgba(155, 140, 255, .18); }
+    .badge.owned { color: #fff; border-color: var(--blue); background: rgba(77, 163, 255, .18); }
+    .badge.asset { color: #fff; border-color: #63c8b1; background: rgba(99, 200, 177, .15); }
+    .load-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+    #loadMoreBtn {
+      min-width: 220px;
+      background: #252b27;
+      border-color: var(--line);
+      border-radius: 20px;
+    }
+    .empty {
+      grid-column: 1 / -1;
+      padding: 48px 20px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-align: center;
+    }
+    dialog {
+      width: min(1000px, calc(100vw - 28px));
+      max-height: min(90vh, 900px);
+      overflow: auto;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+    }
+    dialog::backdrop { background: rgba(0, 0, 0, .8); }
+    .detail {
+      display: grid;
+      grid-template-columns: minmax(280px, 48%) 1fr;
+      gap: 16px;
+      padding: 15px;
+    }
+    .detail img { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; }
+    .detail h2 { margin: 0 0 8px; font-size: 18px; line-height: 1.45; }
+    .kv { display: grid; gap: 4px; color: var(--muted); font-size: 12px; }
+    .block { margin-top: 12px; }
+    .block h3 { margin: 0 0 5px; color: var(--muted); font-size: 13px; }
+    .text {
+      max-height: 190px;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #171a18;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .actions a, .actions button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--panel2);
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    @media (max-width: 760px) {
+      header { padding: 11px 12px 9px; }
+      .heading-row { margin-bottom: 8px; }
+      .searchbar { grid-template-columns: minmax(0, 1fr); }
+      .searchbar button { width: 100%; border-radius: 18px; }
+      .filter-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .filter-wide { grid-column: 1 / -1; }
+      main { padding: 14px 12px 30px; }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .detail { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 430px) {
+      .filter-grid { grid-template-columns: minmax(0, 1fr); }
+      .filter-wide { grid-column: auto; }
+      .basic-filters { grid-template-columns: minmax(0, 1fr); }
+      .preset-row { gap: 6px; }
+      .preset { padding-inline: 9px; }
+    }
+  </style>
 </head>
 <body>
   <header>
-    <div class="brand"><span class="brand-mark">Z</span><div><h1>世界情勢・ずんだもん <span>企画リサーチ</span></h1><p>中国・国際比較の題材を探し、会話劇へ。</p></div></div>
-    <div class="header-actions"><span id="dataDate" class="date-badge"></span><button id="exportNotes">メモを書き出す</button><label class="button" for="importNotes">メモを読み込む</label><input id="importNotes" type="file" accept="application/json" hidden></div>
-  </header>
-  <nav aria-label="画面切り替え">
-    <button class="nav-button active" data-view="videos">動画を探す <span id="videoCount"></span></button>
-    <button class="nav-button" data-view="channels">チャンネル比較</button>
-    <button class="nav-button" data-view="compare">同題材を比較 <span id="compareCount">0</span></button>
-    <button class="nav-button" data-view="ideas">企画候補 <span id="savedCount">0</span></button>
-  </nav>
-  <main>
-    <section id="videosView" class="view">
-      <div class="section-heading"><div><h2>直接競合の動画を並べて探す</h2><p>国際情勢・企業・技術を会話で伝える7チャンネル。指定の4チャンネルを先頭に表示。</p></div></div>
-      <div id="directChannels" class="channel-shortcuts" aria-label="直接競合チャンネル"></div>
-      <div class="search-panel">
-        <div class="search-row"><label class="search-label" for="query">キーワード<input id="query" type="search" placeholder="中国撤退、コマツ、橋、レアアース… タイトル・サムネ文字を検索"></label><button id="youtubeSearch" class="primary">YouTubeで探す ↗</button><button id="newsSearch">最新の報道 ↗</button></div>
-        <div class="filter-row">
-          <label>対象<select id="role"><option value="direct" selected>直接競合7チャンネル</option><option value="benchmark">指定ベンチマーク4チャンネル</option><option value="competitor">追加の直接競合3チャンネル</option><option value="source">ネタ元候補（参考）</option><option value="reference">形式参考</option><option value="all">参考を含む全収録</option></select></label>
-          <label>題材<select id="topic"><option value="">すべての題材</option></select></label>
-          <label>チャンネル<select id="channel"><option value="">すべてのチャンネル</option></select></label>
-          <label>公開時期<select id="period"><option value="all">全期間</option><option value="30">30日以内</option><option value="90">90日以内</option><option value="180">180日以内</option></select></label>
-          <label>再生数<select id="minViews"><option value="0">指定なし</option><option value="10000">1万回以上</option><option value="100000">10万回以上</option><option value="300000">30万回以上</option><option value="1000000">100万回以上</option></select></label>
-          <label>並び順<select id="sort"><option value="published">公開日が新しい順</option><option value="views">累計再生数順</option><option value="growth">観測間の増加／日</option><option value="relative">チャンネル内の突出度</option><option value="daily">公開後の平均再生／日</option></select></label>
-          <label class="check"><input type="checkbox" id="hideCompilation" checked>総集編を除く</label><button id="reset">条件を戻す</button>
-        </div>
-        <div class="quick-row"><span>題材から探す</span><div id="topicChips"></div></div>
+    <div class="heading-row">
+      <h1>ずんだもん企画リサーチ</h1>
+      <span class="scope-summary" id="channelSummary"></span>
+    </div>
+
+    <div class="searchbar">
+      <label>キーワード
+        <input id="q" type="search" placeholder="例: 中国撤退 コマツ 半導体">
+      </label>
+      <button id="searchBtn" type="button">キーワード検索</button>
+    </div>
+
+    <div class="preset-row" aria-label="検索範囲">
+
+
+      <label class="scope-checkbox"><input id="includeOwned" type="checkbox">自社動画も含める</label>
+    </div>
+    <div class="basic-filters">
+        <label>動画の尺
+          <select id="durationRange">
+            <option value="">すべての尺</option>
+            <option value="0-600">10分未満</option>
+            <option value="600-1200">10分〜20分未満</option>
+            <option value="1200-1800">20分〜30分未満</option>
+            <option value="1800-3600">30分〜60分未満</option>
+            <option value="3600-">60分以上</option>
+            <option value="unknown">尺データなし</option>
+          </select>
+        </label>
+        <label class="filter-wide">チャンネル
+          <select id="channel"></select>
+        </label>
+        <label class="filter-wide">並び替え
+          <select id="sort">
+            <option value="views_desc" selected>高再生順</option>
+            <option value="date_desc" selected>公開日が新しい順</option>
+            <option value="likes_desc">高評価が多い順</option>
+            <option value="comments_desc">コメントが多い順</option>
+            <option value="velocity_desc">1日あたりの平均再生数順</option>
+            <option value="channel_ratio_desc">チャンネル内突出順</option>
+            <option value="like_rate_desc">高評価率が高い順</option>
+            <option value="comment_rate_desc">コメント率が高い順</option>
+            <option value="date_asc">公開日が古い順</option>
+            <option value="relevance">関連度順</option>
+          </select>
+        </label>
+    </div>
+    <div class="preset-row" aria-label="公開期間">
+      <span class="preset-label">公開期間</span>
+      <button class="preset" type="button" data-preset="all">全期間</button>
+      <button class="preset" type="button" data-preset="7">直近7日</button>
+      <button class="preset" type="button" data-preset="14">直近14日</button>
+      <button class="preset" type="button" data-preset="30">直近30日</button>
+      <button class="preset reset" id="resetBtn" type="button">条件をリセット</button>
+    </div>
+
+    <details class="advanced" id="advancedFilters">
+      <summary><span id="advancedSummary">詳細条件</span></summary>
+      <div class="filter-grid">
+
+
+        <label>チャンネル状態
+          <select id="channelLifecycle">
+            <option value="">すべて</option>
+            <option value="競合・更新あり">更新あり</option>
+            <option value="過去競合・更新停止">更新停止</option>
+            <option value="過去競合・現在公開なし">現在公開なし</option>
+          </select>
+        </label>
+
+        <label>視聴回数
+          <span class="views-range">
+            <input id="minViews" type="number" min="0" step="10000" placeholder="以上">
+            <input id="maxViews" type="number" min="0" step="10000" placeholder="以下">
+          </span>
+        </label>
+        <label>公開日以降
+          <input id="dateFrom" type="date">
+        </label>
+        <label>公開日以前
+          <input id="dateTo" type="date">
+        </label>
+        <label>サムネOCR
+          <select id="thumbnailTextStatus">
+            <option value="">すべて</option>
+            <option value="ready">サムネ文字あり</option>
+            <option value="missing">サムネ文字未整備</option>
+          </select>
+        </label>
+        <label>公開状態
+          <select id="availabilityStatus">
+            <option value="">すべて</option>
+            <option value="public">公開確認済み</option>
+            <option value="unavailable">削除・非公開</option>
+            <option value="unknown">未確認</option>
+          </select>
+        </label>
+        <label>資料状態
+          <select id="assetStatus">
+            <option value="">すべて</option>
+            <option value="complete">サムネ・台本あり</option>
+            <option value="thumbnail">保存サムネあり</option>
+            <option value="transcript">台本あり</option>
+            <option value="missing">どちらか未整備</option>
+          </select>
+        </label>
+        <label>データ種別
+          <select id="archiveType">
+            <option value="">すべて</option>
+            <option value="current_monitoring">現行監視</option>
+            <option value="stopped_channel_archive">停止チャンネル保全</option>
+            <option value="competitor_sheet_archive">旧競合シート</option>
+            <option value="git_portal_snapshot">前回サイト保全</option>
+          </select>
+        </label>
+
       </div>
-      <div class="result-heading"><p id="resultCount" role="status"></p><p id="metricHint">累計再生数は観測時点の保存値です。現在の再生数は動画ページで確認できます。</p></div>
-      <div id="videoGrid" class="video-grid"></div><div class="load-more"><button id="loadMore">さらに表示</button></div>
-      <details class="guide"><summary>芋づる式リサーチの進め方・数値の見方</summary><div class="guide-grid"><div><h3>検索 → 比較 → 企画候補</h3><ol><li>ChromeのシークレットウィンドウでYouTubeを開く。</li><li>探検隊のタイトルから国・企業・出来事の言葉を拾って検索。</li><li>同題材の先行動画と後発動画を見つける。</li><li>関連動画から、解説・反応集など新しい供給元を探す。</li><li>サムネの約束と内容の回収、新しい見せ方をメモする。</li></ol><p>検索ボタンはシークレットウィンドウを自動起動しません。履歴の影響を避けたい場合は検索URLをコピーしてシークレットで開いてください。</p></div><div><h3>数値を読み違えない</h3><p>平均再生／日は「累計再生数 ÷ 公開から観測までの日数」。直近の増加速度ではありません。</p><p>突出度は、収録した同チャンネルの通常動画の再生中央値との比率です。サンプルや公開日数の差があるため、品質・将来の再生数を保証しません。</p><p>同題材・先行公開だけで実際のネタ元とは確定できません。タイトルやサムネの主張も、事実確認前の企画材料として扱います。</p></div></div></details>
-    </section>
-    <section id="channelsView" class="view" hidden><div class="section-heading"><div><h2>直接競合チャンネル</h2><p>指定の4チャンネルと、既存調査から選んだ近い会話劇チャンネル。数値は収録範囲の比較です。</p></div><label>一覧の対象<select id="channelScope"><option value="direct">直接競合7チャンネル</option><option value="all">参考を含む全収録</option></select></label></div><div id="channelGrid" class="channel-grid"></div></section>
-    <section id="compareView" class="view" hidden><div class="section-heading"><div><h2>同じ題材でも、何が違う？</h2><p>カードの「比較に追加」で最大4本。サムネ・公開順・訴求・内容を並べて確認。</p></div><button id="clearCompare">比較をクリア</button></div><div class="compare-tools"><label>題材セット<select id="entitySet"><option value="">選んで並べる</option></select></label></div><div id="compareGrid" class="compare-grid"></div></section>
-    <section id="ideasView" class="view" hidden><div class="section-heading"><div><h2>企画候補を残す</h2><p>見る理由と、元動画から何を変えるか。メモはこのブラウザに保存されます。</p></div><button id="addIdea" class="primary">URLから候補を追加</button></div><div class="notice">別PC・れもんさんとの共有には「メモを書き出す」からJSONを渡し、「メモを読み込む」で取り込めます。同時編集・クラウド同期はありません。</div><div id="ideaGrid" class="idea-grid"></div></section>
+      <div class="search-fields">
+        <span>検索対象</span>
+        <label><input type="checkbox" id="fieldThumbnail" checked> サムネ文字</label>
+        <label><input type="checkbox" id="fieldTitle" checked> タイトル</label>
+        <label><input type="checkbox" id="fieldTags" checked> タグ</label>
+        <label><input type="checkbox" id="matchAll" checked> すべての語を含む</label>
+      </div>
+    </details>
+
+    <div class="active-filters" id="activeFilters" aria-label="選択中の条件"></div>
+    <div class="status" id="status" aria-live="polite"></div><div class="status" id="pipelineStatus"></div>
+  </header>
+
+  <main>
+    <div class="grid" id="grid"></div>
+    <div class="load-more-wrap">
+      <button id="loadMoreBtn" type="button" hidden>さらに100件表示</button>
+    </div>
   </main>
-  <footer><span>企画リサーチ / 中国・国際情勢・企業・インフラ</span><button id="exportCatalog">検索結果をCSVで保存</button><span>サムネはYouTubeの公開画像を表示</span></footer>
-  <dialog id="detailDialog"><button id="closeDetail" class="dialog-close" aria-label="閉じる">×</button><div id="detailContent"></div></dialog>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <script src="data/catalog.js"></script><script src="app.js"></script>
+
+  <dialog id="dialog">
+    <div class="detail">
+      <div>
+        <img id="detailImg" alt="">
+        <div class="actions">
+          <a id="youtubeLink" href="#" target="_blank" rel="noopener">YouTube</a>
+          <a id="archiveThumbnailLink" href="#" target="_blank" rel="noopener" hidden>保存サムネ</a>
+          <button id="downloadCsvBtn" type="button">CSV DL</button>
+          <button id="downloadThumbnailBtn" type="button">サムネDL</button>
+          <button id="copyResearchBtn" type="button">企画情報をコピー</button>
+          <button id="closeBtn" type="button">閉じる</button>
+        </div>
+      </div>
+      <div>
+        <h2 id="detailTitle"></h2>
+        <div class="kv" id="detailMeta"></div>
+        <div class="block">
+          <h3>サムネ文字</h3>
+          <div class="text" id="detailThumbnailText"></div>
+        </div>
+        <div class="block">
+          <h3>概要欄・保存字幕ダイジェスト</h3>
+          <div class="text" id="detailScriptText"></div>
+        </div>
+        <div class="block" id="thumbnailAnalysisBlock" hidden>
+          <h3>サムネ分析</h3>
+          <div class="text" id="detailThumbnailAnalysis"></div>
+        </div>
+        <div class="block" id="tagsBlock">
+          <h3>タグ</h3>
+          <div class="badges" id="detailTags"></div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="data/pipeline_status.js"></script>
+  <script src="data/channels.js"></script>
+  <script src="data/videos.js"></script>
+  <script src="data/transcripts_light.js"></script>
+  <script>
+    const channels = window.CHANNEL_DATA || [];
+    const videos = window.VIDEO_DATA || [];
+    const transcriptById = new Map((window.TRANSCRIPT_DATA || []).map(t => [t.video_id, t]));
+    const grid = document.getElementById("grid");
+    const status = document.getElementById("status");
+    const channelSelect = document.getElementById("channel");
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    const fmt = new Intl.NumberFormat("ja-JP");
+    const PAGE_SIZE = 100;
+    let visibleLimit = PAGE_SIZE;
+    let filteredRows = [];
+    const thumbnailPlaceholder = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720"><rect width="1280" height="720" fill="#171a18"/><text x="640" y="360" fill="#87918b" font-size="44" text-anchor="middle" dominant-baseline="middle">No thumbnail</text></svg>'
+    );
+
+    const channelMetaById = new Map();
+    const channelMetaByName = new Map();
+    channels.forEach(channel => {
+      if (channel.channel_id) channelMetaById.set(channel.channel_id, channel);
+      [channel.channel_name, channel.portal_channel_name, channel.db_title, channel.youtube_channel_title]
+        .filter(Boolean)
+        .forEach(name => channelMetaByName.set(normalizeName(name), channel));
+    });
+
+    const channelMedians = buildChannelMedians();
+    const latestPublished = videos.map(v => String(v.published_at || "").slice(0, 10)).filter(Boolean).sort().at(-1) || new Date().toISOString().slice(0, 10);
+    const latestPublishedTimestamp = Date.parse(latestPublished + "T23:59:59Z");
+
+    function init() {
+      updateChannelOptions();
+      updateScopeSummary();
+      document.getElementById("searchBtn").addEventListener("click", () => render());
+      document.getElementById("q").addEventListener("input", debounce(() => render(), 250));
+      document.getElementById("q").addEventListener("keydown", event => {
+        if (event.key === "Enter") render();
+      });
+      document.querySelectorAll("select, input[type='date'], input[type='number'], input[type='checkbox']").forEach(element => {
+        element.addEventListener("change", () => render());
+      });
+      document.querySelectorAll("input[type='date'], input[type='number']").forEach(element => {
+        element.addEventListener("input", debounce(() => render(), 250));
+      });
+      document.querySelectorAll("[data-preset]").forEach(button => {
+        button.addEventListener("click", () => applyPreset(button.dataset.preset));
+      });
+      document.getElementById("resetBtn").addEventListener("click", resetFilters);
+      loadMoreBtn.addEventListener("click", () => {
+        visibleLimit += PAGE_SIZE;
+        renderGrid();
+      });
+      const dialog = document.getElementById("dialog");
+      document.getElementById("closeBtn").addEventListener("click", () => dialog.close());
+      dialog.addEventListener("click", event => {
+        const rect = dialog.getBoundingClientRect();
+        const outside = event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
+        if (outside) dialog.close();
+      });
+      render();
+    }
+
+    function matchesDuration(value, range) {
+      if (!range) return true;
+      const seconds = Number(value);
+      const known = Number.isFinite(seconds) && seconds > 0;
+      if (range === "unknown") return !known;
+      if (!known) return false;
+      const [min, max] = range.split("-");
+      return seconds >= Number(min) && (!max || seconds < Number(max));
+    }
+    function render() {
+      visibleLimit = PAGE_SIZE;
+      const q = document.getElementById("q").value.trim().toLowerCase();
+      const terms = q.split(/\s+/).filter(Boolean);
+      const fields = selectedFields();
+      const matchAll = document.getElementById("matchAll").checked;
+      const channel = channelSelect.value;
+      const durationRange = document.getElementById("durationRange").value;
+      const includeOwned = document.getElementById("includeOwned").checked;
+      const channelLifecycle = document.getElementById("channelLifecycle").value;
+      const minViews = Number(document.getElementById("minViews").value || 0);
+      const maxViews = Number(document.getElementById("maxViews").value || 0);
+      const dateFrom = document.getElementById("dateFrom").value;
+      const dateTo = document.getElementById("dateTo").value;
+      const thumbnailTextStatus = document.getElementById("thumbnailTextStatus").value;
+      const availabilityStatus = document.getElementById("availabilityStatus").value;
+      const assetStatus = document.getElementById("assetStatus").value;
+      const archiveType = document.getElementById("archiveType").value;
+      const sort = document.getElementById("sort").value;
+
+      filteredRows = videos.map(v => ({ v, hit: hitInfo(v, terms, fields, matchAll) })).filter(({ v, hit }) => {
+        const meta = channelMeta(v);
+        if (channel && v.channel !== channel) return false;
+        if (!matchesDuration(v.duration_sec, durationRange)) return false;
+        const relation = v.relation_type || "competitor";
+        if (relation !== "competitor" && !(includeOwned && relation === "owned_current")) return false;
+        if (channelLifecycle && meta.lifecycle !== channelLifecycle) return false;
+        if (observedViews(v) < minViews) return false;
+        if (maxViews && observedViews(v) > maxViews) return false;
+        if (dateFrom && (!v.published_at || v.published_at.slice(0, 10) < dateFrom)) return false;
+        if (dateTo && (!v.published_at || v.published_at.slice(0, 10) > dateTo)) return false;
+        if (thumbnailTextStatus === "ready" && !(v.thumbnail_text || "").trim()) return false;
+        if (thumbnailTextStatus === "missing" && (v.thumbnail_text || "").trim()) return false;
+        if (availabilityStatus && availabilityState(v) !== availabilityStatus) return false;
+        if (assetStatus === "complete" && !(hasArchivedThumbnail(v) && hasTranscript(v))) return false;
+        if (assetStatus === "thumbnail" && !hasArchivedThumbnail(v)) return false;
+        if (assetStatus === "transcript" && !hasTranscript(v)) return false;
+        if (assetStatus === "missing" && hasArchivedThumbnail(v) && hasTranscript(v)) return false;
+        if (archiveType && (v.archive_type || "") !== archiveType) return false;
+        if (terms.length && !hit.ok) return false;
+        return true;
+      });
+
+      if (sort === "views_desc") filteredRows.sort((a, b) => observedViews(b.v) - observedViews(a.v));
+      if (sort === "likes_desc") filteredRows.sort((a, b) => observedLikes(b.v) - observedLikes(a.v));
+      if (sort === "comments_desc") filteredRows.sort((a, b) => observedComments(b.v) - observedComments(a.v));
+      if (sort === "like_rate_desc") filteredRows.sort((a, b) => rateValue(observedLikes(b.v), observedViews(b.v)) - rateValue(observedLikes(a.v), observedViews(a.v)));
+      if (sort === "comment_rate_desc") filteredRows.sort((a, b) => rateValue(observedComments(b.v), observedViews(b.v)) - rateValue(observedComments(a.v), observedViews(a.v)));
+      if (sort === "velocity_desc") filteredRows.sort((a, b) => viewsPerDay(b.v) - viewsPerDay(a.v));
+      if (sort === "channel_ratio_desc") filteredRows.sort((a, b) => channelRatio(b.v) - channelRatio(a.v));
+      if (sort === "date_desc") filteredRows.sort((a, b) => String(b.v.published_at || "").localeCompare(String(a.v.published_at || "")));
+      if (sort === "date_asc") filteredRows.sort((a, b) => String(a.v.published_at || "").localeCompare(String(b.v.published_at || "")));
+      if (sort === "relevance") filteredRows.sort((a, b) => b.hit.score - a.hit.score || observedViews(b.v) - observedViews(a.v));
+
+      updateActiveFilters();
+      updatePresetState();
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const limited = filteredRows.slice(0, visibleLimit);
+      status.textContent = `表示 ${fmt.format(limited.length)}件 / ヒット ${fmt.format(filteredRows.length)}件 / 対象動画 ${fmt.format(videos.length)}件`;
+      grid.innerHTML = limited.length
+        ? limited.map(({ v, hit }, position) => cardHtml(v, hit, position)).join("")
+        : '<div class="empty">条件に一致する動画がありません。条件を減らして再検索してください。</div>';
+      grid.querySelectorAll(".card").forEach(element => {
+        const open = () => openDetail(videos[Number(element.dataset.idx)]);
+        element.addEventListener("click", open);
+        element.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            open();
+          }
+        });
+      });
+      loadMoreBtn.hidden = visibleLimit >= filteredRows.length;
+      if (!loadMoreBtn.hidden) {
+        const remaining = Math.min(PAGE_SIZE, filteredRows.length - visibleLimit);
+        loadMoreBtn.textContent = `さらに${fmt.format(remaining)}件表示`;
+      }
+    }
+
+    function updateChannelOptions() {
+      const selected = channelSelect.value;
+      const counts = new Map();
+      videos.forEach(v => counts.set(v.channel, (counts.get(v.channel) || 0) + 1));
+      const categoryOrder = ["competitor", "self", "related"];
+      const categoryLabels = { self: "自チャンネル", related: "関連チャンネル", competitor: "競合チャンネル" };
+      const groups = categoryOrder.map(category => {
+        const options = channels.filter(channel => (category === "competitor" ? !["self", "related"].includes(channel.category) : channel.category === category)).map(channel => {
+          const name = channel.portal_channel_name || channel.channel_name;
+          const count = counts.get(name) || 0;
+          const disabled = count === 0 ? " disabled" : "";
+          const suffix = count ? ` (${fmt.format(count)})` : " (データなし)";
+          return `<option value="${escapeAttr(name)}"${disabled}>${escapeHtml(name + suffix)}</option>`;
+        }).join("");
+        return options ? `<optgroup label="${escapeAttr(categoryLabels[category])}">${options}</optgroup>` : "";
+      }).join("");
+      channelSelect.innerHTML = '<option value="">すべて</option>' + groups;
+      if ([...channelSelect.options].some(option => option.value === selected && !option.disabled)) channelSelect.value = selected;
+    }
+
+    function updateScopeSummary() {
+      const latest = videos.map(v => v.latest_observed_at || v.observed_at || v.fetched_at || "").filter(Boolean).sort().at(-1) || "";
+      const competitorCount = videos.filter(v => (v.relation_type || "competitor") === "competitor").length;
+      document.getElementById("channelSummary").textContent = `${fmt.format(channels.length)}ch・競合 ${fmt.format(competitorCount)}本・更新 ${formatDateTime(latest).slice(0, 10) || "不明"}`;
+    }
+
+    function selectedFields() {
+      return {
+        thumbnail: document.getElementById("fieldThumbnail").checked,
+        title: document.getElementById("fieldTitle").checked,
+        tags: document.getElementById("fieldTags").checked,
+      };
+    }
+
+    function hitInfo(v, terms, fields, matchAll) {
+      if (!terms.length) return { ok: true, score: 0, fields: [] };
+      const texts = [];
+      if (fields.thumbnail) texts.push(["サムネ文字", v.thumbnail_text || ""]);
+      if (fields.title) texts.push(["タイトル", v.title || ""]);
+      if (fields.tags) texts.push(["タグ", (v.tags || []).join(" ")]);
+      const termHits = terms.map(term => texts.filter(([, value]) => String(value).toLowerCase().includes(term)).map(([name]) => name));
+      const ok = matchAll ? termHits.every(fieldsHit => fieldsHit.length) : termHits.some(fieldsHit => fieldsHit.length);
+      return { ok, score: termHits.flat().length, fields: [...new Set(termHits.flat())] };
+    }
+
+    function cardHtml(v, hit, position) {
+      const idx = videos.indexOf(v);
+      const meta = channelMeta(v);
+      const date = (v.published_at || "").slice(0, 10) || "日付なし";
+      const views = observedViews(v);
+      const likes = observedLikes(v);
+      const comments = observedComments(v);
+      const badges = [];
+
+      if (v.relation_type === "owned_current") badges.push('<span class="badge owned">自社動画</span>');
+      if (v.relation_type === "former_competitor") badges.push('<span class="badge archive">旧競合</span>');
+      if (v.relation_type === "migration_or_related_competitor") badges.push('<span class="badge archive">関連監視</span>');
+      if (meta.lifecycle === "過去競合・更新停止") badges.push('<span class="badge warn">更新停止</span>');
+      if (meta.lifecycle === "過去競合・現在公開なし") badges.push('<span class="badge danger">現在公開なし</span>');
+      if (hasArchivedThumbnail(v) && hasTranscript(v)) badges.push('<span class="badge asset">資料完備</span>');
+      else if (hasTranscript(v)) badges.push('<span class="badge asset">台本あり</span>');
+      if (availabilityState(v) === "unavailable") badges.push('<span class="badge danger">削除・非公開</span>');
+      if (!(v.thumbnail_text || "").trim()) badges.push('<span class="badge warn">サムネ文字未整備</span>');
+      hit.fields.forEach(field => badges.push(`<span class="badge hit">${escapeHtml(field)}</span>`));
+      return `<article class="card" data-idx="${idx}" role="button" tabindex="0" aria-label="${escapeAttr(v.title || "動画詳細")}">
+        <div class="thumbnail-wrap">
+          <img src="${escapeAttr(preferredThumbnail(v))}" alt="" loading="${position < 12 ? "eager" : "lazy"}"${position < 4 ? ' fetchpriority="high"' : ""} decoding="async" referrerpolicy="no-referrer" data-fallback-index="0" onerror="fallbackImage(this, ${idx})">
+          <span class="duration-badge" title="動画の長さ">${formatDuration(v.duration_sec)}</span>
+        </div>
+        <div class="meta">
+          <div class="primary-meta">
+            <span class="channel-name">${escapeHtml(v.channel || "")}</span>
+            <span class="view-count">${fmt.format(views)} 回</span>
+          </div>
+          <div class="title">${escapeHtml(v.title || "")}</div>
+          <div class="metrics">
+            <div class="metric"><span class="metric-label">公開日</span><span class="metric-value">${date}</span></div>
+            <div class="metric"><span class="metric-label">高評価</span><span class="metric-value">${(likes == null ? "未取得" : fmt.format(likes))} / ${rateText(likes, views)}</span></div>
+            <div class="metric"><span class="metric-label">コメント</span><span class="metric-value">${(comments == null ? "未取得" : fmt.format(comments))} / ${rateText(comments, views)}</span></div>
+          </div>
+          <div class="badges">${badges.join("")}</div>
+        </div>
+      </article>`;
+    }
+
+    function openDetail(v) {
+      const t = transcriptById.get(v.video_id);
+      const meta = channelMeta(v);
+      const views = observedViews(v);
+      const likes = observedLikes(v);
+      const comments = observedComments(v);
+      const detailImg = document.getElementById("detailImg");
+      detailImg.dataset.idx = videos.indexOf(v);
+      applyThumbnail(detailImg, v);
+      document.getElementById("detailTitle").textContent = v.title || "";
+      document.getElementById("youtubeLink").href = v.youtube_url;
+      const archiveLink = document.getElementById("archiveThumbnailLink");
+      archiveLink.hidden = !hasArchivedThumbnail(v);
+      archiveLink.href = v.thumbnail_saved_url || publicGcsUrl(v.thumbnail_gcs_uri) || "#";
+      document.getElementById("detailMeta").innerHTML = [
+        `チャンネル: ${escapeHtml(v.channel || "")}`,
+        `動画区分: ${escapeHtml(relationLabel(v.relation_type))}`,
+        `チャンネル状態: ${escapeHtml(lifecycleLabel(meta.lifecycle))}`,
+        `視聴回数: ${fmt.format(views)} 回`,
+        `高評価: ${(likes == null ? "未取得" : fmt.format(likes))} / 高評価率 ${rateText(likes, views)}`,
+        `コメント: ${(comments == null ? "未取得" : fmt.format(comments))} / コメント率 ${rateText(comments, views)}`,
+        `動画の長さ: ${escapeHtml(formatDuration(v.duration_sec))}`,
+        `公開日: ${escapeHtml((v.published_at || "").slice(0, 10) || "日付なし")}`,
+        `データ更新: ${escapeHtml(formatDateTime(v.latest_observed_at || v.observed_at || v.fetched_at) || "不明")}`,
+        `公開状態: ${escapeHtml(availabilityLabel(availabilityState(v)))}`,
+        `データ種別: ${escapeHtml(archiveTypeLabel(v.archive_type))}`,
+        `保存状況: サムネ ${hasArchivedThumbnail(v) ? "あり" : "なし"} / 台本 ${hasTranscript(v) ? "あり" : "なし"}`,
+        `video_id: ${escapeHtml(v.video_id)}`
+      ].map(value => `<div>${value}</div>`).join("");
+      document.getElementById("detailThumbnailText").textContent = v.thumbnail_text || "未整備";
+      document.getElementById("detailScriptText").textContent = t
+        ? t.digest + (t.chars > t.digest.length ? `\n\n... (${fmt.format(t.chars)}文字中、冒頭${fmt.format(t.digest.length)}文字)` : "")
+        : "未取得";
+      const analysisText = formatThumbnailAnalysis(v.thumbnail_analysis);
+      document.getElementById("thumbnailAnalysisBlock").hidden = analysisText === "未整備";
+      document.getElementById("detailThumbnailAnalysis").textContent = analysisText;
+      const tags = (v.tags || []).slice(0, 80);
+      document.getElementById("tagsBlock").hidden = !tags.length;
+      document.getElementById("detailTags").innerHTML = tags.map(tag => `<span class="badge">${escapeHtml(tag)}</span>`).join("");
+      document.getElementById("downloadCsvBtn").onclick = () => downloadCsv(v, t);
+      document.getElementById("downloadThumbnailBtn").onclick = () => downloadThumbnail(v);
+      const copyButton = document.getElementById("copyResearchBtn");
+      copyButton.textContent = "企画情報をコピー";
+      copyButton.onclick = () => copyResearchText(v, t, copyButton);
+      document.getElementById("dialog").showModal();
+    }
+
+    function updateActiveFilters() {
+      const container = document.getElementById("activeFilters");
+      const filters = [];
+      const add = (id, label, value, display = value) => {
+        if (value) filters.push({ id, label: `${label}: ${display}` });
+      };
+      add("q", "検索", document.getElementById("q").value.trim());
+      add("durationRange", "尺", valueOf("durationRange"), selectedText("durationRange"));
+
+      add("channelLifecycle", "状態", valueOf("channelLifecycle"), selectedText("channelLifecycle"));
+      add("channel", "チャンネル", valueOf("channel"), selectedText("channel"));
+      add("minViews", "再生数以上", valueOf("minViews"), valueOf("minViews") ? fmt.format(Number(valueOf("minViews"))) : "");
+      add("maxViews", "再生数以下", valueOf("maxViews"), valueOf("maxViews") ? fmt.format(Number(valueOf("maxViews"))) : "");
+      add("dateFrom", "公開日以降", valueOf("dateFrom"));
+      add("dateTo", "公開日以前", valueOf("dateTo"));
+      add("thumbnailTextStatus", "OCR", valueOf("thumbnailTextStatus"), selectedText("thumbnailTextStatus"));
+      add("availabilityStatus", "公開状態", valueOf("availabilityStatus"), selectedText("availabilityStatus"));
+      add("assetStatus", "資料", valueOf("assetStatus"), selectedText("assetStatus"));
+      add("archiveType", "データ", valueOf("archiveType"), selectedText("archiveType"));
+      container.innerHTML = filters.map(filter => `<button class="filter-chip" type="button" data-clear="${escapeAttr(filter.id)}">${escapeHtml(filter.label)}</button>`).join("");
+      container.querySelectorAll("[data-clear]").forEach(button => button.addEventListener("click", () => clearFilter(button.dataset.clear)));
+      const advancedCount = filters.filter(filter => document.getElementById("advancedFilters").contains(document.getElementById(filter.id))).length;
+      document.getElementById("advancedSummary").textContent = advancedCount ? `詳細条件（${advancedCount}件）` : "詳細条件";
+    }
+
+    function clearFilter(id) {
+      const element = document.getElementById(id);
+      if (!element) return;
+      element.value = "";
+      render();
+    }
+
+    function applyPreset(name) {
+      document.getElementById("dateFrom").value = name === "all" ? "" : recentDateValue(Number(name));
+      document.getElementById("dateTo").value = "";
+      render();
+    }
+
+    function updatePresetState() {
+      document.querySelectorAll("[data-preset]").forEach(button => {
+        const expected = button.dataset.preset === "all" ? "" : recentDateValue(Number(button.dataset.preset));
+        const active = valueOf("dateFrom") === expected && !valueOf("dateTo");
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    }
+    function resetFilters() {
+      ["q", "durationRange", "channelLifecycle", "channel", "minViews", "maxViews", "dateFrom", "dateTo", "thumbnailTextStatus", "availabilityStatus", "assetStatus", "archiveType"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("includeOwned").checked = false;
+      document.getElementById("sort").value = "views_desc";
+      document.getElementById("fieldThumbnail").checked = true;
+      document.getElementById("fieldTitle").checked = true;
+      document.getElementById("fieldTags").checked = true;
+      document.getElementById("matchAll").checked = true;
+      render();
+    }
+
+    function channelMeta(v) {
+      return channelMetaById.get(v.channel_id) || channelMetaByName.get(normalizeName(v.channel)) || {};
+    }
+
+    function normalizeName(value) {
+      return String(value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+    }
+
+    function observedViews(v) {
+      return Number(v.max_observed_view_count || v.observed_view_count || v.view_count || 0);
+    }
+
+    function observedLikes(v) {
+      return v.observed_like_count ?? v.like_count ?? null;
+    }
+
+    function observedComments(v) {
+      return v.observed_comment_count ?? v.comment_count ?? null;
+    }
+
+    function hasArchivedThumbnail(v) {
+      return Boolean(v.thumbnail_gcs_uri || v.thumbnail_saved_url);
+    }
+
+    function hasTranscript(v) {
+      return Boolean(v.script_asset_available || v.script_csv_url || (transcriptById.has(v.video_id) && transcriptById.get(v.video_id).source !== "youtube_description"));
+    }
+
+    function availabilityState(v) {
+      const value = String(v.youtube_availability || "").toLowerCase();
+      if (value === "public") return "public";
+      if (["unavailable", "confirmed_unavailable", "suspected_unavailable", "private", "deleted"].includes(value)) return "unavailable";
+      return "unknown";
+    }
+
+    function rateValue(count, views) {
+      return count == null ? -1 : views ? Number(count) / Number(views) : 0;
+    }
+
+    function rateText(count, views) {
+      return count == null ? "未取得" : `${(rateValue(count, views) * 100).toFixed(2)}%`;
+    }
+
+    function formatDuration(value) {
+      const totalSeconds = Math.round(Number(value));
+      if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return "不明";
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      const paddedSeconds = String(seconds).padStart(2, "0");
+      return hours
+        ? `${hours}:${String(minutes).padStart(2, "0")}:${paddedSeconds}`
+        : `${minutes}:${paddedSeconds}`;
+    }
+
+    function viewsPerDay(v) {
+      const published = Date.parse(v.published_at || "");
+      if (!Number.isFinite(published)) return 0;
+      const days = Math.max(1, (latestPublishedTimestamp - published) / 86400000);
+      return observedViews(v) / days;
+    }
+
+    function buildChannelMedians() {
+      const values = new Map();
+      videos.forEach(v => {
+        const key = v.channel_id || normalizeName(v.channel);
+        if (!values.has(key)) values.set(key, []);
+        values.get(key).push(observedViews(v));
+      });
+      const medians = new Map();
+      values.forEach((items, key) => {
+        items.sort((a, b) => a - b);
+        const middle = Math.floor(items.length / 2);
+        medians.set(key, items.length % 2 ? items[middle] : (items[middle - 1] + items[middle]) / 2);
+      });
+      return medians;
+    }
+
+    function channelRatio(v) {
+      const key = v.channel_id || normalizeName(v.channel);
+      return observedViews(v) / Math.max(1, channelMedians.get(key) || 1);
+    }
+
+    function latestPublishedDate() {
+      return latestPublished;
+    }
+
+    function recentDateValue(days = 30) {
+      const date = new Date(new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" }) + "T00:00:00Z");
+      date.setUTCDate(date.getUTCDate() - (days - 1));
+      return date.toISOString().slice(0, 10);
+    }
+
+    function valueOf(id) {
+      return document.getElementById(id).value;
+    }
+
+    function selectedText(id) {
+      const element = document.getElementById(id);
+      return element.options && element.selectedIndex >= 0 ? element.options[element.selectedIndex].text.replace(/\s+\([\d,]+\)$/, "") : element.value;
+    }
+
+    function relationLabel(value) {
+      return ({ competitor: "競合", owned_current: "自社動画", former_competitor: "旧競合", migration_or_related_competitor: "移行・関連競合" })[value] || "未分類";
+    }
+
+    function lifecycleLabel(value) {
+      return ({ "競合・更新あり": "更新あり", "過去競合・更新停止": "更新停止", "過去競合・現在公開なし": "現在公開なし" })[value] || value || "未確認";
+    }
+
+    function availabilityLabel(value) {
+      return ({ public: "公開確認済み", unavailable: "削除・非公開", unknown: "未確認" })[value] || "未確認";
+    }
+
+    function archiveTypeLabel(value) {
+      return ({ current_monitoring: "現行監視", stopped_channel_archive: "停止チャンネル保全", competitor_sheet_archive: "旧競合シート", git_portal_snapshot: "前回サイト保全" })[value] || value || "不明";
+    }
+
+    function publicGcsUrl(uri) {
+      const match = String(uri || "").match(/^gs:\/\/([^/]+)\/(.+)$/);
+      if (!match) return "";
+      const objectPath = match[2].split("/").map(encodeURIComponent).join("/");
+      return `https://storage.googleapis.com/${encodeURIComponent(match[1])}/${objectPath}`;
+    }
+
+    async function copyResearchText(v, t, button) {
+      const text = [
+        v.title || "",
+        v.thumbnail_text ? `サムネ文字: ${v.thumbnail_text}` : "",
+        t && t.digest ? `冒頭: ${t.digest}` : "",
+        v.youtube_url || ""
+      ].filter(Boolean).join("\n\n");
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = "コピーしました";
+        window.setTimeout(() => { button.textContent = "企画情報をコピー"; }, 1500);
+      } catch (error) {
+        button.textContent = "コピーできませんでした";
+      }
+    }
+
+    function downloadCsv(v, t) {
+      if (v.script_csv_url) {
+        const anchor = document.createElement("a");
+        anchor.href = v.script_csv_url;
+        anchor.download = `${downloadBaseName(v)}.csv`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        return;
+      }
+      const meta = channelMeta(v);
+      const views = observedViews(v);
+      const likes = observedLikes(v);
+      const comments = observedComments(v);
+      const row = [v.video_id, v.channel || "", meta.category_label || "", relationLabel(v.relation_type), lifecycleLabel(meta.lifecycle), v.title || "", v.youtube_url, preferredThumbnail(v), v.published_at || "", v.latest_observed_at || v.observed_at || v.fetched_at || "", views, likes, comments, rateText(likes, views), rateText(comments, views), t ? t.digest : ""];
+      const csv = ["video_id,channel,channel_category,relation_type,channel_lifecycle,title,youtube_url,thumbnail_url,published_at,observed_at,view_count,like_count,comment_count,like_rate,comment_rate,digest", row.map(csvCell).join(",")].join("\n");
+      downloadBlob(`${downloadBaseName(v)}.csv`, csv, "text/csv;charset=utf-8");
+    }
+
+    async function downloadThumbnail(v) {
+      const urls = thumbnailCandidates(v);
+      for (const url of urls) {
+        try {
+          const response = await fetch(url, { mode: "cors" });
+          if (!response.ok) continue;
+          const blob = await response.blob();
+          const extension = blob.type.includes("png") ? "png" : "jpg";
+          downloadBlob(`${downloadBaseName(v)}_thumbnail.${extension}`, blob, blob.type || "image/jpeg");
+          return;
+        } catch (error) {
+          // Try the next candidate.
+        }
+      }
+      if (urls.length) window.open(urls[urls.length - 1], "_blank", "noopener");
+    }
+
+    function preferredThumbnail(v) {
+      return thumbnailCandidates(v)[0] || thumbnailPlaceholder;
+    }
+
+    function thumbnailCandidates(v) {
+      return [...new Set([
+        v && v.thumbnail_saved_url,
+        v && publicGcsUrl(v.thumbnail_gcs_uri),
+        v && v.thumbnail_max_url,
+        ...(v && v.thumbnail_fallback_urls ? v.thumbnail_fallback_urls : []),
+        v && v.thumbnail_url,
+      ].filter(Boolean))];
+    }
+
+    function applyThumbnail(img, v) {
+      const urls = thumbnailCandidates(v);
+      img.dataset.fallbackIndex = "0";
+      img.onerror = () => fallbackImageForVideo(img, v);
+      img.src = urls[0] || thumbnailPlaceholder;
+    }
+
+    function fallbackImage(img, idx) {
+      fallbackImageForVideo(img, videos[idx]);
+    }
+
+    function fallbackImageForVideo(img, v) {
+      const urls = thumbnailCandidates(v);
+      const nextIndex = Number(img.dataset.fallbackIndex || 0) + 1;
+      if (nextIndex < urls.length) {
+        img.dataset.fallbackIndex = String(nextIndex);
+        img.src = urls[nextIndex];
+        return;
+      }
+      img.onerror = null;
+      img.src = thumbnailPlaceholder;
+    }
+
+    function downloadBlob(filename, body, type) {
+      const blob = body instanceof Blob ? body : new Blob([body], { type });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvCell(value) {
+      return `"${String(value).replace(/"/g, '""')}"`;
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "";
+      return String(value).replace("T", " ").replace("Z", "").slice(0, 19);
+    }
+
+    function formatThumbnailAnalysis(analysis) {
+      if (!analysis) return "未整備";
+      const rows = [
+        ["主役", analysis.main_subject],
+        ["人物", analysis.people],
+        ["舞台", analysis.setting],
+        ["構図", analysis.composition],
+        ["感情訴求", analysis.emotion_appeal],
+        ["フック", analysis.story_hook],
+      ].filter(([, value]) => String(value || "").trim());
+      return rows.length ? rows.map(([key, value]) => `${key}: ${value}`).join("\n") : "未整備";
+    }
+
+    function downloadBaseName(v) {
+      const title = sanitizeFilename(v.title || "").slice(0, 20) || "untitled";
+      return `${v.video_id}_${title}`;
+    }
+
+    function sanitizeFilename(value) {
+      return String(value).replace(/[\\/:*?"<>|\r\n]/g, "").replace(/\s+/g, "").trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
+    function debounce(fn, wait) {
+      let timer = 0;
+      return (...args) => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    init();
+    const pipeline = window.PIPELINE_STATUS || {};
+    document.getElementById("pipelineStatus").textContent = pipeline.public_label || "";
+  </script>
 </body>
 </html>

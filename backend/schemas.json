@@ -1,0 +1,605 @@
+{
+  "channels": [
+    {
+      "name": "channel_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "handle",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "title",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "description",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "subscriber_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "video_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "total_view_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "published_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "thumbnail_url",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "country",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "uploads_playlist_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "is_own_channel",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "status",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "status_detail",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "last_synced_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "created_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "updated_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "relation_type",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "relation_note",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "content_category",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "watch_scope",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "analysis_status",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "channel_snapshots": [
+    {
+      "name": "id",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "channel_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "snapshot_date",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "subscriber_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "video_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "total_view_count",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "avg_views_all",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "avg_views_3m",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "avg_views_1m",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "videos_1m",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "videos_3m",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "max_views_all",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "max_views_3m",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "source",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "created_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "script_assets": [
+    {
+      "name": "video_id",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "channel",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "title",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "view_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "published_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "asset_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "best_type",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "best_local_path",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "best_bytes",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "local_csv_asset",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "gcs_csv_uri",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "public_csv_url",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "thumbnail_assets": [
+    {
+      "name": "video_id",
+      "type": "STRING",
+      "mode": "REQUIRED"
+    },
+    {
+      "name": "gcs_uri",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "bytes",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "error",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "thumbnail_ocr": [
+    {
+      "name": "video_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "combined_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "emphasis_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "narration_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "dialogue_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "top_upper_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "top_lower_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "center_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "bottom_upper_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "bottom_lower_text",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "raw_json",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "notes",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "error",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "analyzed_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "videos": [
+    {
+      "name": "video_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "channel_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "title",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "description",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "published_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "duration_iso",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "duration_sec",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "view_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "like_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "comment_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "thumbnail_url_max",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "tags",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "category_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "thumbnail_local_path",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "fetched_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "video_snapshots": [
+    {
+      "name": "id",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "video_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "snapshot_date",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "view_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "like_count",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "comment_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "source",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "created_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "youtube_metadata_update_runs": [
+    {
+      "name": "run_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "started_at",
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "finished_at",
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "channels_considered",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "updated_channels",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "video_upserts",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "video_snapshots",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "skipped_video_channels",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "quota_skips",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "key_used",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "error_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "error_json",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "videos_archive": [
+    {
+      "name": "video_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "channel_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "title",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "description",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "published_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "duration_iso",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "duration_sec",
+      "type": "FLOAT",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "view_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "like_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "comment_count",
+      "type": "INTEGER",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "thumbnail_url_max",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "tags",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "category_id",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "thumbnail_local_path",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "fetched_at",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ]
+}

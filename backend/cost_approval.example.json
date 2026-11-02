@@ -1,0 +1,18 @@
+{
+  "task_id": "zunda-equivalent-pipeline-20261102",
+  "explicit_user_approval": false,
+  "approval_evidence": "未承認。このサンプルを承認として使わない。",
+  "project": "rugged-destiny-408613",
+  "dataset": "zunda_all",
+  "valid_from": "2026-11-02",
+  "valid_until": "2026-12-01",
+  "total_cap_jpy": 300,
+  "max_bq_bytes": 52428800,
+  "max_gcs_bytes": 1073741824,
+  "max_gcs_objects": 3000,
+  "max_daily_runs": 30,
+  "max_cloud_builds": 1,
+  "max_job_seconds": 600,
+  "scopes": ["bigquery_storage", "gcs_storage", "daily_cloud_run", "cloud_build", "cloud_scheduler"],
+  "ocr_and_generation_approved": false
+}

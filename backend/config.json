@@ -1,0 +1,69 @@
+{
+  "project": "rugged-destiny-408613",
+  "dataset": "zunda_all",
+  "location": "asia-northeast1",
+  "bucket": "senior-share-staging-570862915709",
+  "gcs_prefix": "zunda_research",
+  "site_url": "https://japonismy.github.io/zunda-kikaku-research/",
+  "min_duration_seconds": 120,
+  "inactive_days": 45,
+  "max_youtube_requests": 180,
+  "max_videos": 3000,
+  "channels": [
+    {
+      "channel_id": "UCCLJicEOjjzQftcy6ICtbgA",
+      "channel_name": "ずんだ実話",
+      "priority": 0,
+      "category": "direct_a",
+      "reason": "指定ベンチマーク。国際情勢・中国・日本企業を扱う会話劇。"
+    },
+    {
+      "channel_id": "UCEaNC-I0as6FhFHzBgWDxMw",
+      "channel_name": "すんだ観察所",
+      "priority": 1,
+      "category": "direct_a",
+      "reason": "指定ベンチマーク。提示URLの社会観察所と既存資料の表記をチャンネルIDで照合。"
+    },
+    {
+      "channel_id": "UCF27uipT8xmfaIALkQ14hKA",
+      "channel_name": "ずんだ探検隊",
+      "priority": 2,
+      "category": "direct_a",
+      "reason": "指定ベンチマーク。国際比較・企業・技術を人物の会話で説明。"
+    },
+    {
+      "channel_id": "UCXzt6u4VooLQcyc3-yIFIcw",
+      "channel_name": "世界まる見えずんだもん",
+      "priority": 3,
+      "category": "direct_a",
+      "reason": "指定ベンチマーク。企業・産業・身近な社会の疑問を扱うずんだもん解説。"
+    },
+    {
+      "channel_id": "UCEIXrjU4QgbKqZgZO1L9SVA",
+      "channel_name": "天子のワダイ",
+      "priority": 4,
+      "category": "direct_b",
+      "reason": "ユーザー提示の @tenko-topic。既存資料でも国際情勢の会話劇比較先。"
+    },
+    {
+      "channel_id": "UC9Le1DkKHWTw2KVDtS7Y__g",
+      "channel_name": "ニッポンすんだ村",
+      "priority": 5,
+      "category": "direct_b",
+      "reason": "れもんさんの既存調査にある会話劇比較先。国役・秘書・現場役の構成が近い。"
+    },
+    {
+      "channel_id": "UCyJa4OYtGxD8oGkBqiu9oMA",
+      "channel_name": "えだまめじゃぽん",
+      "priority": 6,
+      "category": "direct_b",
+      "reason": "れもんさんの既存調査にある会話劇比較先。同じ企業・国際比較の題材を扱う。"
+    }
+  ],
+  "excluded_names": [
+    "Japan応援隊",
+    "じゃぱん応援隊"
+  ],
+  "cloud_activation": "pending_cost_approval",
+  "ocr_activation": "pending_separate_cost_approval"
+}

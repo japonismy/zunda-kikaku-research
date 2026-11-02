@@ -1,0 +1,6 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'backend/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/rugged-destiny-408613/cloud-run-source-deploy/zunda-daily-metadata:v1', '.']
+images:
+  - asia-northeast1-docker.pkg.dev/rugged-destiny-408613/cloud-run-source-deploy/zunda-daily-metadata:v1
+timeout: 1200s
