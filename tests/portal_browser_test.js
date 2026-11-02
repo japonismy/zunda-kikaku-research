@@ -30,6 +30,8 @@ async function main(){
   await check('requested four channels are first','channels.slice(0,4).map(c=>c.channel_id)',v=>v.join(',')==='UCCLJicEOjjzQftcy6ICtbgA,UCEaNC-I0as6FhFHzBgWDxMw,UCF27uipT8xmfaIALkQ14hKA,UCXzt6u4VooLQcyc3-yIFIcw');
   await check('reused OCR remains searchable','videos.filter(v=>v.thumbnail_text).length',v=>v>=69);
   await check('metadata includes likes comments tags','videos.some(v=>v.like_count>0&&v.comment_count>0&&v.tags.length>0)');
+  await check('every displayed video has an archived thumbnail URL','videos.every(v=>Boolean(v.thumbnail_saved_url)&&hasArchivedThumbnail(v))');
+  await check('public thumbnails use Pages rather than billable GCS delivery','videos.every(v=>v.thumbnail_saved_url.startsWith("assets/thumbnails/")&&!v.thumbnail_saved_url.includes("storage.googleapis.com"))');
   await check('keyword search',`(()=>{document.getElementById('q').value='コマツ';render();return filteredRows.length>0&&filteredRows.every(r=>r.v.title.includes('コマツ')||r.v.thumbnail_text.includes('コマツ')||r.v.tags.some(t=>t.includes('コマツ')))})()`);
   await check('channel filter',`(()=>{document.getElementById('q').value='';channelSelect.value=channels[3].portal_channel_name;render();return filteredRows.length>300&&filteredRows.every(r=>r.v.channel_id===channels[3].channel_id)})()`);
   await check('descending view sort',`(()=>{document.getElementById('sort').value='views_desc';render();return filteredRows.every((r,i,a)=>!i||observedViews(a[i-1].v)>=observedViews(r.v))})()`);

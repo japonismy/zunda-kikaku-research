@@ -1,1 +1,1 @@
-window.PIPELINE_STATUS = {"source":"bigquery","cloud_connected":true,"public_label":"BigQuery保存値から生成。日次実行の有効化状態は運用記録を参照。","daily_collection_verified":true,"site_workflow_verified":false,"approved_until":"2026-12-01"};
+window.PIPELINE_STATUS = {"source":"bigquery","cloud_connected":true,"public_label":"毎日3:20に取得、3:50に表示を更新（承認期間：2026-12-01まで）。サムネは保全画像を表示。","daily_collection_verified":true,"site_workflow_verified":true,"approved_until":"2026-12-01"};

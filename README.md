@@ -2,42 +2,42 @@
 
 公開URL：https://japonismy.github.io/zunda-kikaku-research/
 
-馴れ初め版の「YouTube取得→BigQueryで現在値と日次履歴を保存→資産を動画IDで結合→静的データ生成→GitHub Pages表示」を移植する。
+馴れ初め版の「YouTube取得→BigQueryで現在値と日次履歴を保存→資産を動画IDで結合→サイト用データ生成→GitHub Pages表示」を、ずんだもん専用領域へ移植。
 
-2026-11-02時点：直接競合7chから公開メタデータ2,280本を取得、120秒以上の2,271本を公開データへ生成。既存OCR69本、過去観測367件を再利用。サムネ2,268枚・約521MiBをローカル保全。追加課金0円。
+2026-11-02にクラウド登録と実行を完了。直接競合7ch、公開メタデータ2,283本、120秒以上の表示2,274本、保全サムネ2,274枚。既存OCR69本を再利用。追加の有料OCR・生成AIは実行していない。
 
-**BigQueryへの実データ保存、GCS転送、Cloud Run / Schedulerの新規作成と日次稼働は費用未承認のため未実行。表示成功をクラウド接続成功と扱わない。** 公開画面にも状態を表示する。
+## 更新経路
 
-## 構成・手順
+1. 毎日03:20 JST、Cloud SchedulerがCloud Run Job `zunda-daily-metadata`を起動。
+2. 全uploadsをページ末尾まで取得し、BigQuery `rugged-destiny-408613.zunda_all` の現在値と日次履歴を更新。
+3. 新しいサムネをGCS `gs://senior-share-staging-570862915709/zunda_research/thumbnails/` へ保全。
+4. 毎日03:50 JST、GitHub ActionsがBigQueryを無料のtabledata.listで読み、Pythonで動画・チャンネル・履歴・OCR・画像・字幕資産を結合。
+5. 新しい保全画像だけを上限付きで取得し、静的JSと画像をGitHub Pagesへ公開。公開ページの閲覧時にはBigQueryもGCSも直接呼ばない。
 
-[backend/README.md](backend/README.md) に本番の調査結果、移植内容、9テーブル、起動手順、費用承認後の反映順序、現在の不足を記載。
+GCSは保全庫、画像配信はGitHub Pages。閲覧数に比例するGCS転送費を避ける。初期画像はローカル保全原本を同一バイトで再利用。以降のGCS読み出しは1回20枚・承認期間合計600MiB以内。
 
-- backend/config.json：7チャンネルの固定ID台帳。Japan応援隊は除外。
-- backend/collect.py：全uploadsの取得、現在値、冪等な日次履歴、削除時の過去値保持。
-- backend/cloud_sync.py：BigQueryへの登録計画、承認後の書き込み、無料プレビュー読み出し。
-- backend/build_portal.py：動画・チャンネル・OCR・サムネ・字幕資産・観測履歴を結合して静的JSを生成。
-- backend/archive_thumbnails.py / upload_assets.py：ローカル保全、承認後のGCS保存。
-- backend/run_daily.py / Dockerfile / deploy.ps1：日次ジョブ。コード準備済み、未デプロイ。
-- .github/workflows/update-data.yml：BigQueryからページ用データを再生成。現在は手動起動のみ。
-- .github/workflows/pages.yml：公開ファイルだけをGitHub Pagesへ反映。
+## 保存先と認証
 
-画面は馴れ初め版のindex.htmlを移植。サムネ・タイトル・タグの検索、チャンネル・尺・公開日・再生数・OCR・保全状態の絞り込み、高評価・コメント・再生数・公開日・中央値比等の並べ替え、詳細・CSVに対応。概要欄ダイジェストは保存字幕と区別する。
+- DB：`rugged-destiny-408613.zunda_all`。馴れ初めのDBへ混入させない。
+- テーブル：channels / videos / channel_snapshots / video_snapshots / videos_archive / thumbnail_assets / thumbnail_ocr / script_assets / youtube_metadata_update_runs。
+- GitHubのDB読み取りは、リポジトリとmainブランチに限定したWorkload Identity Federation。サービスアカウント鍵は作成・配置しない。
+- Cloud Runは専用サービスアカウント、YouTube APIキーと承認内容はSecret Managerの参照で渡す。
+- 台本・字幕を新規生成したものではない。script_assetsは既存資産の受け皿。概要欄ダイジェストを台本として扱わない。
 
-## ローカル検証
+## 費用と稼働期間
 
-```powershell
-python .\backend\collect.py --cached
-python .\backend\build_portal.py
-python -m unittest discover -s tests -p 'test_pipeline.py' -v
-node .\tests\portal_browser_test.js
-```
+ユーザーの明示承認：初期構築＋30日分、総額300円以内。有料OCR・生成AI・無制限のGCS画像配信は対象外。
 
-バックエンド9件・ブラウザ18件が成功。専用ヘッドレスChromeを使用し、既存ブラウザのフォーカスを操作しない。
+稼働対象日は2026-11-02〜2026-12-01。Cloud Runは1CPU・512MiB・600秒上限、再試行0、成功済み同日の二重更新を防止。最終日の成功後に専用Schedulerを削除し、サイト再生成も期間終了後に自己停止する。
 
-## 以前の版
+費用台帳は非公開のreports/cost_ledger.json。保守的な予約額と確定請求を区別し、請求反映を待たず送信前に上限を管理する。停止後もクラウド保管物の保存費は残るため、継続時は台帳と保存方針を確認する。
 
-app.js / styles.css / data/catalog.js / refresh_direct.py / build_data.py / refresh_youtube.py / save_research_handoff.py / tests/browser_test.js は以前の表示・比較中心の版の記録。現在の公開画面からは読み込まない。現在の更新にはbackend配下を使う。catalog.jsは既存OCR・過去観測の移行元として保持する。
+## 検証
 
-原本とローカルwarehouseはdata_sources、検証結果はreports。どちらもGitと公開ページには含めない。認証情報・承認ファイル・APIキーも公開しない。
+Cloud Run実行 `zunda-daily-metadata-57rsp` 成功。GitHubのDB読み出し・画像差分取得・再生成・公開ワークフローも成功。バックエンド9件、専用ヘッドレスChromeで20項目を確認。
+
+[構成と運用手順](backend/README.md)
 
 実装保存先：E:\Data\ObsidianVault\04_Tools\zunda-kikaku-research
+
+原本・承認ファイル・ローカルDBミラー・検証記録はdata_sourcesとreportsへ保存し、GitHubへ公開しない。app.js / styles.css / catalog.js等の以前の表示版は移行元の記録で、現在の画面からは読み込まない。

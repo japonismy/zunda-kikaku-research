@@ -64,7 +64,7 @@
     "Japan応援隊",
     "じゃぱん応援隊"
   ],
-  "cloud_activation": "approved_deploying",
+  "cloud_activation": "active_verified",
   "ocr_activation": "pending_separate_cost_approval",
   "approved_operating_period": {
     "from": "2026-11-02",

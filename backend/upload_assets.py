@@ -2,13 +2,18 @@
 import hashlib
 import json
 import concurrent.futures
+import argparse
 from common import ROOT, config, read, write, table, upsert, now, credentials
 from cloud_sync import authorize
 
 def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--only',nargs='*');args=parser.parse_args()
     approval=authorize('gcs_storage');cfg=config()
     from google.cloud import storage
     manifest=read(ROOT/'reports/thumbnail_manifest.json',[])
+    if args.only:
+        selected=set(args.only);manifest=[r for r in manifest if r['video_id'] in selected]
+        if {r['video_id'] for r in manifest}!=selected:raise RuntimeError('Selected asset not in verified local manifest.')
     current={r['video_id']:r for r in table('thumbnail_assets')}
     combined={**current,**{r['video_id']:r for r in manifest}}
     if len(combined)>approval.get('max_gcs_objects',0):raise RuntimeError('Object count exceeds approval.')

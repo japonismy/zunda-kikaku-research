@@ -1,94 +1,75 @@
-# ずんだもん：取得・保存・表示の構成
+# 取得・保存・表示の運用
 
-公開サイト：https://japonismy.github.io/zunda-kikaku-research/
+2026-11-02に本番接続済み。公開サイト：https://japonismy.github.io/zunda-kikaku-research/
 
-これは馴れ初め側の「取得→BigQueryで現在値と履歴を保管→資産を動画IDで結合→静的JS生成→GitHub Pages表示」を移植する実装。表示だけの前回版を置き換える。
+## 馴れ初めから移植した範囲
 
-2026-11-02現在、無料の取得・ローカル保存・画面移植・接続コード・テストは完了。**BigQueryへの実データ登録、GCSへのアップロード、Cloud Run / Schedulerの作成・稼働は未実行**。新規費用の承認が必要なため、公開画面にも未接続と表示する。
+馴れ初めはnaresome_allのチャンネル台帳を基に、毎日03:20 JSTにCloud RunでYouTubeを取得する。現在値・日次履歴、OCR、サムネ・字幕資産を動画IDで結合し、03:50 JSTのGitHub Actionsで静的JSを生成して表示する。
 
-## 馴れ初め本番の確認結果
-
-- Project: `rugged-destiny-408613`。作業アカウント `japonismy@gmail.com` を確認。
-- `naresome_all.channels` を監視台帳とするCloud Run Job `naresome-daily-metadata`。
-- Cloud Schedulerは毎日03:20 JSTに有効。channels / videosをYouTube APIから取得し、channel_snapshots / video_snapshotsを追加・更新。
-- サムネOCRはthumbnail_ocr、画像保全はthumbnail_assets、字幕・台本CSVはscript_assetsに動画IDで登録。
-- BigQueryからサイト用のchannels.js / videos.js / transcripts_light.jsを生成。馴れ初め版はSQLで結合し、現行・保全・過去調査・前回公開スナップショットを統合。
-- GitHub Actionsは03:50 JSTにサイト用データを再生成。ページ表示時はBQへ直接問い合わせず、公開用の静的JSを読む。
-- サムネはGCSの保全画像を優先し、YouTube画像へフォールバック。CSV資産は登録URLへリンク。
-- メタデータGET/LISTのみで本番構成を確認。既存本番にSQL・設定変更・生成処理を送っていない。
-
-## ずんだもん版
+ずんだもんは同じ構成を専用dataset `zunda_all`、専用GCS prefix `zunda_research/` へ実装。元の馴れ初めテーブルやジョブは変更していない。
 
 ```mermaid
 flowchart LR
-  R[直接競合7chの固定ID台帳] --> Y[YouTube API / 全uploads]
-  Y --> C[collect.py / 現在値と日次履歴]
-  C --> B[(zunda_all / 9テーブル)]
-  O[保存済みOCR・資産台帳] --> B
-  T[サムネ保存] --> G[GCS / zunda_research]
-  G --> B
-  B --> P[tabledata.listで取得・ローカル結合]
-  P --> J[channels.js / videos.js / transcripts_light.js]
-  J --> H[GitHub Pages / 馴れ初めと同じ画面]
+ R[直接競合7chの固定ID台帳] --> Y[YouTube API / 全uploads]
+ Y --> C[Cloud Run / 現在値と日次履歴]
+ C --> B[(BigQuery zunda_all)]
+ C --> G[GCS / サムネ保全]
+ O[既存OCR・資産台帳] --> B
+ G --> B
+ B --> P[無料tabledata.list / Pythonで結合]
+ G --> D[不足画像だけ上限付き取得]
+ P --> H[GitHub Pages / 馴れ初めと同じ画面]
+ D --> H
 ```
 
-`backend/config.json` が対象台帳。馴れ初めデータセットにずんだもん動画を混ぜず、`zunda_all` と `zunda_research/` の専用領域を使う。DBスキーマは本番のメタデータから継承した。
+読み出しと結合はBigQuery SQLではなく無料のtabledata.listとローカルPython。BQ処理費を発生させず、DBを永続保存先とする。公開ページは静的JSと画像を読むため、閲覧時のBQクエリはない。
 
-|テーブル|保存するもの|
-|---|---|
-|channels|チャンネルID、ハンドル、公開名、登録者、動画数、監視区分|
-|videos|タイトル、概要欄、公開日、尺、再生数、高評価、コメント、タグ|
-|channel_snapshots|チャンネルの日次履歴|
-|video_snapshots|動画の日次履歴|
-|videos_archive|明示的に取り込んだ保全動画|
-|thumbnail_assets|保存画像の動画ID・GCS URI・サイズ・取得エラー|
-|thumbnail_ocr|保存済みOCRと将来の追加OCRの格納先|
-|script_assets|既存の字幕・台本CSV資産の格納先|
-|youtube_metadata_update_runs|日次実行の結果|
+## 本番の識別子
 
-全uploadsをページ末尾まで列挙。APIは最大180リクエスト、動画は最大3,000本、同じ条件の自動再試行なし。同日取得済みメタデータを再利用し、次の日付は新規取得する。
-ローカルミラーは `data_sources/warehouse/*.json`。同じ日・動画IDの履歴は重複させない。動画がYouTube APIから返らなくなっても最後の実測値を消さない。
+- Project：rugged-destiny-408613
+- Dataset：zunda_all / asia-northeast1
+- Cloud Run Job：zunda-daily-metadata
+- Scheduler：zunda-daily-metadata-schedule / 03:20 JST
+- GitHub Actions：update-data.yml / 03:50 JST
+- GCS：gs://senior-share-staging-570862915709/zunda_research/thumbnails/
+- 公開画像：assets/thumbnails/{video_id}.jpg（GitHub Pages）
+- Runner：zunda-research-runner。DB書き込みと専用GCS prefixだけに権限を限定。
+- Reader：zunda-site-reader。DB・専用画像の読み取り。GitHub mainブランチに限定した鍵なし認証。
 
-馴れ初め版との差分は、公開用データの結合をローカルPythonで行い、BigQueryの読み出しに `list_rows` を使う点。保存先・履歴・資産結合・表示データの契約を揃えつつ、サイト再生成ごとの課金SQLを避ける。
+config.jsonが対象7chの正本。Japan応援隊／じゃぱん応援隊は対象外。
 
-概要欄ダイジェストは字幕と区別する。実在する字幕・台本資産がない動画を「台本あり」と表示しない。高評価やコメントが取得不能なら0ではなく未取得として保持。
+## 保存ルール
 
-## 実行順序
+channelsとvideosは現在値。channel_snapshotsとvideo_snapshotsは日付・自然キーで冪等に保存。動画が返らなくなっても最後の値を消さない。videos_archiveは明示保全用。thumbnail_ocrは既存69件を再利用。thumbnail_assetsはGCS URIとサイズ、script_assetsは既存字幕・台本資産の受け皿。youtube_metadata_update_runsは実行履歴。
 
-無料のローカル処理:
+高評価やコメントが取得できなければ0に置き換えない。概要欄ダイジェストは台本・字幕と区別する。サムネの高解像度URLで失敗した3件は、HQ URLへ取得先を変えて一度だけ補完し、全2,274件を保全した。
+
+## 実行制限と費用
+
+承認：初期構築＋30日、総額300円以内。2026-11-02〜2026-12-01。有料OCR・生成AI・追加クレジットは未承認・未使用。
+
+- API：180 listリクエスト以内、動画3,000本以内、同一条件の自動再試行なし。
+- BQ：JSON換算50MiB以内。課金SQL・Storage Read APIは使わない。
+- GCS：保存1GiB・3,000オブジェクト以内。公開ページからGCS画像を直接配信しない。
+- 差分画像の読出し：1回20枚・1MiB/枚・期間合計600MiB以内。取得前に予約バイト数を記録。
+- Cloud Run：最大30実行（初回実測を含む）、1CPU・512MiB・600秒、再試行0。
+- Pages：画像800MiB以内。デプロイ成功後は一時artifactを直ちに削除。
+- 最終日成功時に専用Schedulerを削除。期間終了後はサイト再生成workflowも自己停止。
+
+reports/cost_ledger.jsonが承認と予約の台帳。実請求は未確定であり、予約上限を実際の支払額と呼ばない。保管物は更新停止だけでは保存費がゼロにならない。期間延長時は承認・実績・残予算・保管方針を読み直す。
+
+## 手動で表示データだけ再生成
 
 ```powershell
-python .\backend\collect.py
-python .\backend\import_existing.py
-python .\backend\archive_thumbnails.py
-python .\backend\build_portal.py
-python .\backend\cloud_sync.py
-python -m unittest discover -s tests -p 'test_pipeline.py' -v
-node .\tests\portal_browser_test.js
+& '.\data_sources\.venv\Scripts\python.exe' backend\cloud_sync.py --pull
+& '.\data_sources\.venv\Scripts\python.exe' backend\build_portal.py
 ```
 
-collect.pyは同日の取得原本が存在する場合は再利用する。APIキーは環境変数YOUTUBE_API_KEY。キーをサイト・Gitへ書かない。
-`cloud_sync.py`の引数なし実行はローカルの登録計画の生成だけ。`--push` は承認ファイルなしではGoogle SDKの初期化前に拒否する。`--pull` はBigQueryの無料プレビュー読み出しで、SQLジョブを作らない。
+通常はGitHub Actionsを使う。collect.py --cachedや古いrefresh_direct.pyを、最新DBの更新手順として使わない。
 
-課金範囲と上限を明示承認後の反映順序:
+## 検証と復旧
 
-1. 選択アカウント、リージョン、サービスアカウント、既存バケットの保存クラス・権限・ソフト削除設定を確認し、見積条件と照合。
-2. `cost_approval.example.json`とは別に、実際の承認根拠・期間・件数・上限を持つ非公開ファイルを作る。サンプルのfalseを機械的にtrueへ変えて実行しない。
-3. 承認パスをZUNDA_COST_APPROVAL_FILEへ指定。`cloud_sync.py --push` で専用datasetと9テーブルに現在の保存値を登録。
-4. `upload_assets.py` で同じバイトのサムネをGCSへ保全。SHA256、オブジェクトgeneration、アップロード済みファイルの再利用を確認。既存バケットのIAMを変更しない。
-5. 再度 `cloud_sync.py --push` で資産URIを登録し、`--pull` →build_portal.pyでDBから生成できることを確認。
-6. Cloud Build 1回・20分上限、Cloud Run 1タスク・1CPU・512MiB・600秒・再試行0のジョブを反映。Schedulerは作成後停止し、承認範囲内だけ有効化。
-7. 日次取得は03:20 JST、サイト側再生成は03:50 JST。update-data.ymlには現在cronを書いていない。実稼働と費用の承認後に追加する。
+Cloud Run初回実行成功：zunda-daily-metadata-57rsp。
+GitHubの鍵なし認証・BQ読み取り・画像差分・サイト生成・公開が成功。バックエンド9件、ヘッドレスブラウザ20項目。
 
-Google SDKの依存はbackend/requirements.txt。ローカルはdata_sources/.venvに導入済み。BigQuery/GCSクライアントのimportと、9テーブル・7,281行のSDK形式への変換を課金なしで確認した。Cloud RunとGitHub Actionsは同ファイルで導入する。
-公開用ページにDB資格情報は置かない。原本・履歴ミラー・承認・実行レポートは公開対象外。
-
-## 現在の不足と費用承認の対象
-
-- BigQueryの実データ保存と日次クラウドジョブは未接続。画面の表示成功をDB接続成功と扱わない。
-- サムネのローカル保存は完了。GCS転送および公開保全URLの疎通確認は未実行。
-- OCRは既存69件を再利用。追加OCRや生成AIは未承認・未実行。script_assetsは受け皿のみで、保存字幕を新たに生成したわけではない。
-- GCS公開配信を行う場合は転送量に応じた費用が増える。今回の300円の案は保存と日次取得・静的データ生成までで、無制限の画像配信を含まない。公開画像の保全URLを有効化する前に、配信方式・転送量上限を確定する。
-- 30日分の承認案。期限後の計算処理を続けない。保存費・Scheduler・Artifact Registry等は停止だけではゼロにならないため、継続保存と定期ジョブの維持／削除方針も承認時に確定する。
-
-現時点の追加課金は0円。クラウドへの有料反映と稼働を完了したとは報告しない。
+失敗時は新しい有料リクエストを止め、該当実行・台帳・既存成果物を確認する。無制限に再実行・ビルド・再生成しない。画像はSHA256で一致を確認し、既に保存されたファイルを再生成しない。
