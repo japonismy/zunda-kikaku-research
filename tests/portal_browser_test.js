@@ -11,8 +11,9 @@ async function main(){
  try{
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),'zunda-equivalent-qa-'));
   chrome=spawn(path.join(process.env.ProgramFiles,'Google','Chrome','Application','chrome.exe'),['--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{windowsHide:true,stdio:'ignore'});
-  const active=path.join(profile,'DevToolsActivePort');for(let i=0;i<100&&!fs.existsSync(active);i++)await wait(100);
-  const port=Number(fs.readFileSync(active,'utf8').split('\n')[0]);const targets=await(await fetch(`http://127.0.0.1:${port}/json`)).json();const target=targets.find(t=>t.type==='page'&&t.url==='about:blank');
+  const active=path.join(profile,'DevToolsActivePort');let port=0;
+  for(let i=0;i<100&&!port;i++){try{port=Number(fs.readFileSync(active,'utf8').split('\n')[0])||0;}catch(e){if(!['ENOENT','EBUSY','EACCES'].includes(e.code))throw e;}if(!port)await wait(100);}
+  assert(port,'Dedicated headless Chrome became ready');const targets=await(await fetch(`http://127.0.0.1:${port}/json`)).json();const target=targets.find(t=>t.type==='page'&&t.url==='about:blank');
   ws=new WebSocket(target.webSocketDebuggerUrl);let seq=0;const pending=new Map();
   ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.method==='Runtime.exceptionThrown')errors.push(m.params);if(m.id&&pending.has(m.id)){const p=pending.get(m.id);pending.delete(m.id);clearTimeout(p.timer);m.error?p.reject(m.error):p.resolve(m.result);}};
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});
@@ -21,7 +22,7 @@ async function main(){
   const check=async(name,expression,test=Boolean)=>{const v=await evaluate(expression);assert(test(v),`${name}: ${JSON.stringify(v)}`);checks.push(name);};
   const url=process.env.PUBLIC_QA_URL||`http://127.0.0.1:${server.address().port}/`;
   await call('Runtime.enable');await call('Page.enable');await call('Page.navigate',{url});
-  for(let i=0;i<100;i++){if(await evaluate('Boolean(window.VIDEO_DATA&&document.querySelectorAll(".card").length)'))break;await wait(100);}
+  let ready=false;for(let i=0;i<200;i++){try{ready=await evaluate('Boolean(window.VIDEO_DATA&&document.querySelectorAll(".card").length)');}catch(e){if(e.code!==-32000)throw e;}if(ready)break;await wait(100);}assert(ready,'Portal data became ready');
   await check('same card grid and 100-item pagination','document.querySelectorAll(".card").length',v=>v===100);
   await check('seven canonical direct competitors','({n:channels.length,ids:new Set(channels.map(c=>c.channel_id)).size,excluded:channels.some(c=>/応援隊/.test(c.channel_name))})',v=>v.n===7&&v.ids===7&&!v.excluded);
   await check('full public listing rather than latest fifty','videos.length',v=>v>2200);
