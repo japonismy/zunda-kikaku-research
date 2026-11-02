@@ -76,7 +76,9 @@ function card(v){
   return `<article class="video-card" data-id="${v.id}"><a class="thumb-wrap" href="${videoUrl(v.id)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(v.title)}をYouTubeで開く"><img src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" loading="lazy" alt="${esc(v.title)}のサムネ"><span class="duration">${duration(v.seconds)}</span></a><div class="card-body"><div class="card-meta">${badge(v)}<span>${esc(topicName(v.topic))}</span></div><h3><button class="title-button" data-action="detail">${esc(v.title)}</button></h3><div class="card-meta"><span>${esc(v.channel)}</span><span>公開 ${esc(v.published||'不明')}</span></div><div class="stats"><strong>${shortNum(v.views)}<small> 回</small></strong>${v.relativeViews?`<small>中央値比 ${v.relativeViews}×</small>`:''}</div><div class="observed">再生数の観測 ${esc(v.observed)}${$('sort').value==='daily'?` · 平均 ${num(v.viewsPerDay)}回／日`:''}</div><div class="ocr">${v.thumbnailText?.length?esc(v.thumbnailText.slice(0,3).join(' / ')):'サムネ文字の保存なし'}</div><div class="card-actions"><button data-action="save" class="${saved?'selected':''}">${saved?'候補に保存済み':'＋ 企画候補'}</button><button data-action="compare" class="${selected?'selected':''}">${selected?'比較から外す':'比較に追加'}</button><button data-action="related">同題材を探す ↗</button></div></div></article>`;
 }
 function renderVideos(){
-  $('resultCount').textContent=`${state.filtered.length}件 / ${DATA.videos.length}件収録`;
+  const directCount=DATA.videos.filter(v=>['benchmark','competitor'].includes(v.role)).length;
+  $('resultCount').textContent=`${state.filtered.length}件表示 · 直接競合 ${directCount}本 / 参考を含む ${DATA.videos.length}本収録`;
+  document.querySelectorAll('#directChannels [data-direct-channel]').forEach(b=>b.classList.toggle('active',b.dataset.directChannel===$('channel').value));
   $('videoGrid').innerHTML=state.filtered.slice(0,state.limit).map(card).join('')||'<div class="empty">条件に一致する動画がありません。条件を戻すか、YouTube検索から新しい題材を探してください。</div>';
   for(const el of document.querySelectorAll('#videoGrid [data-id]')){
     const v=byId.get(el.dataset.id);
@@ -103,9 +105,9 @@ function discoveryQuery(v){return v.entities?.length?DATA.entities.find(e=>e.id=
 function openSearch(q,type='youtube'){window.open(type==='news'?`https://www.google.com/search?tbm=nws&q=${encodeURIComponent(q)}`:searchUrl(q),'_blank','noopener,noreferrer');}
 function renderChannels(){
   const rank={benchmark:0,competitor:1,source:2,reference:3};
-  $('channelGrid').innerHTML=[...DATA.channels].sort((a,b)=>(rank[a.role]??3)-(rank[b.role]??3)||(b.medianViews??0)-(a.medianViews??0)).map(c=>{
+  $('channelGrid').innerHTML=DATA.channels.filter(c=>$('channelScope').value==='all'||['benchmark','competitor'].includes(c.role)).sort((a,b)=>(a.priority??100)-(b.priority??100)||(rank[a.role]??3)-(rank[b.role]??3)).map(c=>{
     const url=c.id?`https://www.youtube.com/channel/${c.id}/videos`:searchUrl(c.name);
-    return `<article class="channel-card"><span class="badge ${esc(c.role)}">${esc(ROLES[c.role]||ROLES.reference)}</span><h3>${esc(c.name)}</h3><div class="channel-stats"><div><strong>${shortNum(c.medianViews)}</strong><span>収録通常動画の再生中央値</span></div><div><strong>${c.sampleSize}</strong><span>収録通常動画</span></div><div><strong>${c.hits100k}</strong><span>10万回以上</span></div></div><p>${c.role==='source'?'題材・背景・情報の入口。探検隊の実際の参照元と確定したものではありません。':'同じ視聴者・会話劇の見せ方を比較する対象。'}</p><p>再生数の最新観測 ${esc(c.observed||'データ未収録')} · ${c.subscribers!=null?'登録者 '+num(c.subscribers)+'（'+esc(c.subscribersObserved||'2026-09-27')+' 観測）':'登録者未取得'}</p><div class="card-actions"><button data-channel="${esc(c.name)}">収録動画を見る</button><a class="button" href="${url}" target="_blank" rel="noopener noreferrer">チャンネルを開く ↗</a></div></article>`;
+    return `<article class="channel-card"><span class="badge ${esc(c.role)}">${esc(ROLES[c.role]||ROLES.reference)}</span><h3>${esc(c.name)}</h3><div class="channel-stats"><div><strong>${shortNum(c.medianViews)}</strong><span>収録通常動画の再生中央値</span></div><div><strong>${c.sampleSize}</strong><span>収録通常動画</span></div><div><strong>${c.hits100k}</strong><span>10万回以上</span></div></div><p>${esc(c.reason||(c.role==='source'?'題材・背景・情報の入口。実際の参照元とは未確定。':'見せ方の参考資料。直接競合の初期表示には含めません。'))}</p><p>再生数の最新観測 ${esc(c.observed||'データ未収録')} · ${c.subscribers!=null?'登録者 '+num(c.subscribers)+'（'+esc(c.subscribersObserved||'2026-09-27')+' 観測）':'登録者未取得'}</p><div class="card-actions"><button data-channel="${esc(c.name)}">収録動画を見る</button><a class="button" href="${url}" target="_blank" rel="noopener noreferrer">チャンネルを開く ↗</a></div></article>`;
   }).join('');
 }
 function renderCompare(){
@@ -137,7 +139,7 @@ document.addEventListener('input',event=>{
 });
 for(const id of ['role','topic','channel','period','minViews','sort','hideCompilation'])$(id).addEventListener('change',()=>{state.limit=36;filterVideos();});
 $('query').addEventListener('input',()=>{state.limit=36;filterVideos();});
-$('reset').onclick=()=>{$('query').value='';$('role').value='all';$('topic').value='';$('channel').value='';$('period').value='all';$('minViews').value='0';$('sort').value='published';$('hideCompilation').checked=true;state.limit=36;filterVideos();};
+$('reset').onclick=()=>{$('query').value='';$('role').value='direct';$('topic').value='';$('channel').value='';$('period').value='all';$('minViews').value='0';$('sort').value='published';$('hideCompilation').checked=true;state.limit=36;filterVideos();};
 $('loadMore').onclick=()=>{state.limit+=36;renderVideos();};
 $('youtubeSearch').onclick=()=>openSearch($('query').value.trim()||'中国 日本 海外の反応');
 $('newsSearch').onclick=()=>openSearch($('query').value.trim()||'中国 日本 国際情勢','news');
@@ -149,6 +151,10 @@ $('exportNotes').onclick=()=>download(`zunda-notes-${new Date().toISOString().sl
 $('importNotes').onchange=async event=>{const f=event.target.files[0];if(!f)return;try{if(f.size>5*1024*1024)throw Error('5MB以下のファイルを使用してください');const incoming=validateNotes(JSON.parse(await f.text()));const merged=new Map(notes.ideas.map(n=>[n.id,n]));for(const n of incoming.ideas){const old=merged.get(n.id);if(!old||(n.updated||'')>=(old.updated||''))merged.set(n.id,n);}notes.ideas=[...merged.values()];for(const [id,row] of Object.entries(incoming.videoNotes))notes.videoNotes[id]={...(notes.videoNotes[id]||{}),...row};persist();updateCounts();renderIdeas();renderVideos();toast('既存の候補を残してメモを取り込みました');}catch(e){toast(`読み込みできません：${e.message}`);}event.target.value='';};
 $('exportCatalog').onclick=()=>{const csvRow=values=>values.map(v=>`"${String(v??'').replace(/"/g,'""').replace(/^[=+@-]/,"'")}"`).join(',');const out=[csvRow(['タイトル','チャンネル','区分','公開日','累計再生数','観測日','尺秒','サムネ文字','URL']),...state.filtered.map(v=>csvRow([v.title,v.channel,ROLES[v.role],v.published,v.views,v.observed,v.seconds,v.thumbnailText.join(' / '),videoUrl(v.id)]))];download('zunda-research.csv','\uFEFF'+out.join('\r\n'),'text/csv;charset=utf-8');};
 $('videoCount').textContent=DATA.videos.length;
+const directChannels=DATA.channels.filter(c=>['benchmark','competitor'].includes(c.role)).sort((a,b)=>(a.priority??100)-(b.priority??100));
+$('directChannels').innerHTML=directChannels.map(c=>`<button class="channel-shortcut" data-direct-channel="${esc(c.name)}"><span>${esc(c.name)}</span><small>${c.role==='benchmark'?'指定ベンチマーク':'直接競合'} · ${c.sampleSize}本</small></button>`).join('');
+$('directChannels').onclick=event=>{const button=event.target.closest('[data-direct-channel]');if(!button)return;$('role').value='direct';$('channel').value=$('channel').value===button.dataset.directChannel?'':button.dataset.directChannel;state.limit=36;filterVideos();};
+$('channelScope').onchange=renderChannels;
 const observed=[...new Set(DATA.videos.map(v=>v.observed))].sort();$('dataDate').textContent=`保存データ ${observed[0]}〜${observed.at(-1)}`;
 for(const t of DATA.topics)$('topic').insertAdjacentHTML('beforeend',`<option value="${t.id}">${esc(t.name)}</option>`);
 for(const c of [...DATA.channels].sort((a,b)=>a.name.localeCompare(b.name,'ja')))$('channel').insertAdjacentHTML('beforeend',`<option value="${esc(c.name)}">${esc(c.name)}</option>`);

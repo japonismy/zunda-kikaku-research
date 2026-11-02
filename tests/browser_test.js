@@ -33,14 +33,18 @@ async function main(){
   for(let i=0;i<60;i++){if(await evaluate('Boolean(window.RESEARCH_DATA && document.querySelectorAll(".video-card").length)'))break;await wait(100);}
   const check=async(name,expression,test)=>{const v=await evaluate(expression);assert(test(v),`${name}: ${JSON.stringify(v)}`);checks.push(name);};
   await check('initial cards and count','({cards:document.querySelectorAll(".video-card").length,total:DATA.videos.length})',v=>v.cards===36&&v.total>=150);
+  await check('default shows only direct competitors',`$('role').value==='direct'&&state.filtered.length>300&&state.filtered.every(v=>['benchmark','competitor'].includes(v.role))`,Boolean);
+  await check('four requested benchmarks and three direct rivals',`({bench:DATA.channels.filter(c=>c.role==='benchmark').length,direct:document.querySelectorAll('[data-direct-channel]').length,world:DATA.channels.some(c=>c.id==='UCXzt6u4VooLQcyc3-yIFIcw'&&c.sampleSize>0),excluded:DATA.channels.some(c=>/応援隊/.test(c.name))})`,v=>v.bench===4&&v.direct===7&&v.world&&!v.excluded);
+  await check('channel shortcut selects one rival',`(()=>{document.querySelectorAll('[data-direct-channel]')[3].click();const valid=state.filtered.length>0&&state.filtered.every(v=>v.channelId==='UCXzt6u4VooLQcyc3-yIFIcw');$('reset').click();return valid})()`,Boolean);
+  await check('channel comparison defaults to seven rivals',`(()=>{chooseView('channels');const cards=[...document.querySelectorAll('.channel-card h3')].map(e=>e.textContent);chooseView('videos');return cards})()`,v=>v.length===7&&v[0]==='ずんだ実話'&&v[3]==='世界まる見えずんだもん');
   await check('unique ids and channels','({unique:new Set(DATA.videos.map(v=>v.id)).size,total:DATA.videos.length,channels:DATA.channels.length})',v=>v.unique===v.total&&v.channels>=12);
   await check('unrelated food channel excluded',`!DATA.videos.some(v=>v.id==='xTSXvsNeNqw')`,Boolean);
   await check('dialogue reference retains competitor role',`DATA.videos.find(v=>v.id==='Bh7gU33XPB0').role`,v=>v==='competitor');
   await check('source role filter',`(()=>{$('role').value='source';filterVideos();return {n:state.filtered.length,valid:state.filtered.every(v=>v.role==='source')}})()`,v=>v.n>=6&&v.valid);
-  await check('benchmark role filter',`(()=>{$('role').value='benchmark';filterVideos();return {n:state.filtered.length,valid:state.filtered.every(v=>v.role==='benchmark')}})()`,v=>v.n>30&&v.valid);
+  await check('benchmark role filter',`(()=>{$('role').value='benchmark';filterVideos();return {n:state.filtered.length,valid:state.filtered.every(v=>v.role==='benchmark'),channels:new Set(state.filtered.map(v=>v.channelId)).size}})()`,v=>v.n>30&&v.valid&&v.channels===4);
   await check('suzuki keyword results',`(()=>{$('reset').click();$('query').value=String.fromCodePoint(0x30b9,0x30ba,0x30ad);filterVideos();return state.filtered.map(v=>v.id)})()`,v=>v.includes('PzbaA1FiBkE'));
   await check('compare entity set',`(()=>{$('entitySet').value='komatsu';$('entitySet').dispatchEvent(new Event('change'));chooseView('compare');return document.querySelectorAll('.compare-card').length})()`,v=>v===4);
-  await check('benchmark included in topic comparison',`state.compare.includes('LAPxdRluun0')`,Boolean);
+  await check('benchmark included in topic comparison',`state.compare.some(id=>byId.get(id).role==='benchmark')`,Boolean);
   await check('topic comparison uses distinct channels',`new Set(state.compare.map(id=>byId.get(id).channel)).size`,v=>v===4);
   await check('comparison cap',`(()=>{const x=DATA.videos.find(v=>!state.compare.includes(v.id));toggleCompare(x.id);return state.compare.length})()`,v=>v===4);
   await check('save candidate',`(()=>{saveIdea(byId.get('PzbaA1FiBkE'));chooseView('ideas');return notes.ideas.length})()`,v=>v===1);
