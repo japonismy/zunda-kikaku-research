@@ -52,7 +52,10 @@ def build():
     (ROOT/'data').mkdir(exist_ok=True)
     js('videos.js','VIDEO_DATA',result);js('channels.js','CHANNEL_DATA',output_channels);js('transcripts_light.js','TRANSCRIPT_DATA',digests)
     receipt=read(ROOT/'reports/cloud_receipt.json',{});label='BigQuery保存値から生成。日次実行の有効化状態は運用記録を参照。' if receipt.get('verified') else '取得・表示は整備済み。BigQuery保存・クラウド日次実行は未接続（費用承認待ち）。'
-    js('pipeline_status.js','PIPELINE_STATUS',{'source':'bigquery' if receipt.get('verified') else 'local_warehouse','cloud_connected':bool(receipt.get('verified')),'public_label':label})
+    deployment=read(ROOT/'backend/deployment_state.json',{})
+    if deployment.get('site_workflow_verified') and deployment.get('scheduler_enabled'):
+        label='毎日3:20に取得、3:50に表示を更新（承認期間：2026-12-01まで）。サムネは保全画像を表示。'
+    js('pipeline_status.js','PIPELINE_STATUS',{'source':'bigquery' if receipt.get('verified') else 'local_warehouse','cloud_connected':bool(receipt.get('verified')),'public_label':label,'daily_collection_verified':deployment.get('collector_verified',False),'site_workflow_verified':deployment.get('site_workflow_verified',False),'approved_until':deployment.get('approved_until','')})
     summary={'built_at':now(),'channels':len(output_channels),'videos':len(result),'ocr_reused':sum(bool(v['thumbnail_text']) for v in result),'description_digests':len(digests),'saved_thumbnails':sum(bool(v['thumbnail_saved_url']) for v in result),'script_assets':sum(v['script_asset_available'] for v in result),'source':'bigquery' if receipt.get('verified') else 'local_warehouse','listing_complete':complete,'paid_calls':0}
     write(ROOT/'reports/equivalent_build.json',summary); print(json.dumps(summary,ensure_ascii=True));return result,output_channels
 

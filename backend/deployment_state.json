@@ -1,0 +1,13 @@
+{
+  "collector_verified": true,
+  "scheduler_enabled": true,
+  "site_workflow_verified": false,
+  "collector_job": "zunda-daily-metadata",
+  "verified_execution": "zunda-daily-metadata-57rsp",
+  "collection_time_jst": "03:20",
+  "site_refresh_time_jst": "03:50",
+  "approved_until": "2026-12-01",
+  "total_task_cap_jpy": 300,
+  "public_thumbnail_delivery": "GitHub Pages",
+  "paid_ocr_enabled": false
+}
