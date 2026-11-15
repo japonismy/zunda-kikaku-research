@@ -1,5 +1,5 @@
 {
-  "reserved_download_bytes": 49283072,
+  "reserved_download_bytes": 50331648,
   "attempts": [
     {
       "at": "2026-11-02T18:42:56+09:00",
@@ -329,6 +329,13 @@
       "reserved_bytes": 1048576,
       "status": "verified",
       "bytes": 253442
+    },
+    {
+      "at": "2026-11-16T08:12:11+09:00",
+      "video_id": "CHgKPQ2dALI",
+      "reserved_bytes": 1048576,
+      "status": "verified",
+      "bytes": 280377
     }
   ]
 }
