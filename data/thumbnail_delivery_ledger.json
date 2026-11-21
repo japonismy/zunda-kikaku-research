@@ -1,5 +1,5 @@
 {
-  "reserved_download_bytes": 65011712,
+  "reserved_download_bytes": 70254592,
   "attempts": [
     {
       "at": "2026-11-02T18:42:56+09:00",
@@ -434,6 +434,41 @@
       "reserved_bytes": 1048576,
       "status": "verified",
       "bytes": 277950
+    },
+    {
+      "at": "2026-11-21T09:19:40+09:00",
+      "video_id": "CumcD4omBDM",
+      "reserved_bytes": 1048576,
+      "status": "verified",
+      "bytes": 273548
+    },
+    {
+      "at": "2026-11-21T09:19:43+09:00",
+      "video_id": "DO540U9668E",
+      "reserved_bytes": 1048576,
+      "status": "verified",
+      "bytes": 232236
+    },
+    {
+      "at": "2026-11-21T09:19:44+09:00",
+      "video_id": "Oj1T0XJrHHw",
+      "reserved_bytes": 1048576,
+      "status": "verified",
+      "bytes": 213112
+    },
+    {
+      "at": "2026-11-21T09:19:45+09:00",
+      "video_id": "hCtLhkYYNOw",
+      "reserved_bytes": 1048576,
+      "status": "verified",
+      "bytes": 291566
+    },
+    {
+      "at": "2026-11-21T09:19:47+09:00",
+      "video_id": "rufY0UsFmKM",
+      "reserved_bytes": 1048576,
+      "status": "verified",
+      "bytes": 273579
     }
   ]
 }
